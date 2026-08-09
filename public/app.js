@@ -108,7 +108,7 @@ function setBusy(value) {
   app.busy = value;
   document.querySelector('#action-groups').setAttribute('aria-busy', String(value));
   document.querySelector('#reset-button').disabled = value;
-  if (app.state) {
+  if (app.state && value) {
     renderActions();
   }
 }

@@ -222,7 +222,7 @@ class GameEngine {
 
     while (remaining > 0) {
       const minutesUntilDayEnd = MINUTES_PER_DAY - this.time.minuteOfDay;
-      const step = Math.min(remaining, Math.max(1, minutesUntilDayEnd));
+      const step = Math.min(remaining, minutesUntilDayEnd);
       const previousDay = this.time.day;
       this.time.advance(step);
 
