@@ -1,0 +1,1867 @@
+MASTER DEVELOPMENT PROMPT — A TEXT IMPOSTOR
+
+Act as the
+lead engineer, game systems designer, software architect, UI/UX designer, simulation designer, QA engineer, and technical reviewer
+ for this project.
+
+Your job is to develop the game described below:
+
+1. PROJECT
+
+Game title
+
+A Text Impostor
+
+Working concept:
+
+BitLife's text-based life simulation
+
+Among Us's hidden roles
+
+social deduction
+
+The goal is to create a
+text-driven life/social simulation game
+ in which the player experiences a persistent simulated world populated by NPCs with their own lives, schedules, personalities, memories, relationships, secrets, goals, beliefs, and hidden roles.
+
+The player may be an Innocent, an Impostor, or another hidden role.
+
+The game should NOT feel like:
+
+"Among Us, but all the buttons are text."
+
+Instead, it should feel like:
+
+A life simulator in which a social-deduction conspiracy is naturally occurring inside the simulated world.
+
+The player should be able to live, socialize, investigate, lie, form relationships, manipulate people, make accusations, survive, and experience emergent stories.
+
+2. TECHNOLOGY
+
+The project is intended to use:
+
+HTML
+
+CSS
+
+JavaScript
+
+Node.js
+
+Express.js
+
+The initial implementation should remain appropriately simple and understandable.
+
+Do NOT introduce unnecessary frameworks or dependencies merely because they are available.
+
+If the existing repository already uses a frontend framework or other architecture, respect the existing project unless there is a compelling technical reason to change it.
+
+Potential later technologies may include:
+
+WebSockets / Socket.IO
+
+SQLite
+
+PostgreSQL
+
+persistent save systems
+
+testing frameworks
+
+But these should only be introduced when they become justified by the current phase.
+
+3. CORE DESIGN PHILOSOPHY
+
+The most important principle is:
+
+THE SIMULATION IS THE GAME.
+
+Do not make the game a collection of disconnected menus.
+
+NPCs should exist independently of the player's immediate actions.
+
+They should:
+
+move around
+
+work
+
+socialize
+
+argue
+
+form friendships
+
+form romantic relationships
+
+develop rivalries
+
+remember events
+
+make mistakes
+
+lie
+
+tell the truth
+
+gossip
+
+make accusations
+
+protect friends
+
+betray people
+
+pursue personal goals
+
+react to the player's behavior
+
+react to world events
+
+develop opinions about other NPCs
+
+The player should feel like they are living inside an actual social world.
+
+4. IMPORTANT SECURITY PRINCIPLE
+
+Hidden information must remain server-side.
+
+Never expose hidden roles, secret intentions, private NPC knowledge, undiscovered evidence, or other information that the player should not know through the client.
+
+Do NOT send secret game state to the browser merely because it is hidden from the UI.
+
+The server should determine:
+
+hidden roles
+
+secret objectives
+
+NPC knowledge
+
+NPC private memories
+
+hidden evidence
+
+private intentions
+
+unrevealed relationships
+
+unrevealed events
+
+The client should receive only information the player is legitimately allowed to know.
+
+5. THE GAME WORLD
+
+The world should eventually support locations such as:
+
+Home
+
+Workplace
+
+School
+
+Cafeteria
+
+Restaurant
+
+Gym
+
+Hospital
+
+Shops
+
+Town hall
+
+Parks
+
+Parties
+
+Public areas
+
+Private areas
+
+Transportation
+
+Other locations appropriate to the scenario
+
+The world should be extensible.
+
+Do NOT hard-code the entire simulation around a single location.
+
+6. NPC SIMULATION
+
+NPCs should eventually have data resembling:
+
+NPC
+ ├── identity
+ ├── age
+ ├── personality
+ ├── occupation
+ ├── location
+ ├── schedule
+ ├── relationships
+ ├── memories
+ ├── beliefs
+ ├── reputation
+ ├── secrets
+ ├── goals
+ ├── fears
+ ├── preferences
+ ├── current activity
+ ├── role
+ ├── private knowledge
+ └── social opinions
+
+Not every property needs to exist in Phase 1.
+
+Build the architecture so these systems can be introduced later without rewriting the entire game.
+
+7. NPC MEMORY
+
+Memory is a major mechanic.
+
+NPCs should eventually remember things such as:
+
+conversations
+
+sightings
+
+locations
+
+accusations
+
+lies
+
+promises
+
+friendships
+
+betrayals
+
+important events
+
+suspicious behavior
+
+personal experiences
+
+Memory should eventually support imperfect information.
+
+An NPC may:
+
+remember correctly
+
+forget details
+
+misinterpret something
+
+remember only part of an event
+
+confidently believe something incorrect
+
+Do not implement a fake "NPC knows everything" system.
+
+8. RELATIONSHIPS
+
+NPCs should eventually have dynamic relationships.
+
+Examples:
+
+Friend
+Close Friend
+Acquaintance
+Rival
+Enemy
+Coworker
+Partner
+Family
+Suspicious Of
+Trusts
+Distrusts
+Respects
+Fears
+Dislikes
+
+Relationships should evolve based on events.
+
+For example:
+
+If the player repeatedly helps Sarah:
+
+Sarah becomes more trusting.
+
+If the player falsely accuses Sarah:
+
+Sarah becomes less trusting.
+
+If the player protects Sarah during a meeting:
+
+Sarah may later defend the player.
+
+Relationships should have gameplay consequences.
+
+9. THE HIDDEN-ROLE SYSTEM
+
+The eventual role system should support roles such as:
+
+Innocent
+
+Primary goal:
+
+Survive and identify the Impostor.
+
+Impostor
+
+Primary goal:
+
+Eliminate opposing players while maintaining a believable identity and avoiding detection.
+
+Detective
+
+Has investigative capabilities.
+
+Guardian
+
+Can protect people under appropriate restrictions.
+
+Jester
+
+Attempts to get themselves voted out.
+
+Medium
+
+May interact with information from eliminated/dead characters under specific circumstances.
+
+Judge
+
+May have unusual voting influence.
+
+Analyst
+
+Can detect certain inconsistencies.
+
+Mimic
+
+May temporarily imitate another character or identity under controlled circumstances.
+
+Saboteur
+
+Can cause dangerous events without necessarily directly eliminating people.
+
+Informant
+
+Starts with a limited piece of secret information.
+
+Survivor
+
+Has an independent survival objective.
+
+Assassin
+
+May have a specific target.
+
+These are examples, not a requirement that all roles be implemented immediately.
+
+The role architecture should be extensible.
+
+10. THE IMPOSTOR EXPERIENCE
+
+The Impostor should NOT simply:
+
+Kill → hide → lie.
+
+The Impostor should have to maintain a believable life.
+
+For example:
+
+Attend work
+
+Maintain friendships
+
+Maintain schedules
+
+Create alibis
+
+Manipulate witnesses
+
+Spread rumors
+
+Frame people
+
+Gain trust
+
+Exploit relationships
+
+Observe investigations
+
+Identify dangerous investigators
+
+Decide when to act
+
+Deal with consequences
+
+The Impostor should be rewarded for
+social manipulation and believable behavior
+, not merely numerical stealth.
+
+A good Impostor should be able to construct a believable narrative.
+
+11. INFORMATION IS IMPERFECT
+
+This is fundamental.
+
+The player should rarely receive:
+
+"Sarah is lying."
+
+Instead, the game should provide information such as:
+
+Sarah says she was at the office.
+
+But:
+
+Mike remembers seeing Sarah leave the office.
+
+And:
+
+The player remembers seeing Sarah at the café.
+
+Now the player has to reason about the contradiction.
+
+The game should encourage:
+
+observation + memory + deduction + social reasoning
+
+rather than simply presenting correct answers.
+
+12. MEETINGS
+
+Major incidents can trigger meetings.
+
+Example:
+
+EMERGENCY MEETING
+
+James has been found unconscious in the parking garage.
+
+Sarah:
+"Who saw James last?"
+
+Mike:
+"You did."
+
+Sarah:
+"No, I didn't."
+
+You:
+"I saw Sarah at 8:45."
+
+James:
+"I thought Mike left earlier."
+
+Eventually meetings should support:
+
+dialogue
+
+accusations
+
+defenses
+
+evidence
+
+witness testimony
+
+lies
+
+partial truths
+
+reputation
+
+relationships
+
+voting
+
+consequences
+
+Meetings should feel important.
+
+13. VOTING
+
+Voting should have social consequences.
+
+Do not make voting merely:
+
+Sarah — 3
+Mike — 2
+James — 1
+
+The result should affect:
+
+reputation
+
+relationships
+
+future conversations
+
+trust
+
+NPC beliefs
+
+confidence
+
+alliances
+
+An incorrect accusation should matter.
+
+If Sarah is innocent and the player successfully convinces everyone to eliminate her:
+
+people should remember that.
+
+Some NPCs may later say:
+
+"You were the one who pushed hardest for Sarah."
+
+14. POSSIBLE ROLE REVEALS
+
+Do not assume every elimination must immediately reveal the victim's role.
+
+The game may eventually support:
+
+Full reveal
+
+Sarah was the Detective.
+
+Partial information
+
+Sarah's role was not confirmed.
+
+Uncertain information
+
+Sarah may have been the Detective.
+
+This allows misinformation and bluffing.
+
+15. LIFE SIMULATION
+
+The BitLife influence should become increasingly important.
+
+The player may eventually experience:
+
+aging
+
+jobs
+
+careers
+
+education
+
+relationships
+
+marriage
+
+children
+
+money
+
+homes
+
+travel
+
+friendships
+
+social events
+
+random events
+
+reputation
+
+health
+
+major life changes
+
+These systems should interact with the social deduction simulation.
+
+Example:
+
+The player marries Sarah.
+
+Later Sarah becomes involved in an investigation.
+
+Now the player's personal relationship affects their decisions.
+
+16. CAREERS
+
+Eventually careers may affect gameplay.
+
+Examples:
+
+Police Officer
+
+Better investigative capabilities.
+
+Journalist
+
+Can interview people and gather information.
+
+Doctor
+
+Can analyze certain forms of evidence.
+
+Lawyer
+
+Better at defending themselves or others.
+
+Politician
+
+May influence social groups and voting.
+
+Teacher
+
+Has many relationships and access to students/coworkers.
+
+Scientist
+
+Can analyze evidence.
+
+Criminal
+
+May have access to illegal or secret activities.
+
+Career systems should not merely provide cosmetic labels.
+
+They should eventually influence gameplay.
+
+17. PROCEDURAL STORIES
+
+The simulation should be capable of generating stories such as:
+
+Day 46
+You become friends with Sarah.
+
+Day 51
+Sarah introduces you to Mike.
+
+Day 62
+Mike accuses Tom of stealing money.
+
+Day 68
+Tom is found dead.
+
+Day 69
+Sarah claims you were with her.
+
+Day 70
+The Detective privately tells you they suspect Sarah.
+
+Day 71
+Sarah asks you to help eliminate the Detective.
+
+Day 72
+Mike reveals he is the Jester.
+
+Day 73
+You discover Sarah is your fellow Impostor.
+
+Day 74
+Sarah eliminates Mike.
+
+Day 75
+The Detective accuses you.
+
+Day 76
+You marry the Detective.
+
+The exact events are not important.
+
+The principle is:
+
+Emergent stories should arise from interacting systems rather than being fully scripted.
+
+18. THE CASE / INVESTIGATION SYSTEM
+
+Eventually provide a case board similar to:
+
+CASE #014
+
+VICTIM
+James, 34
+
+LAST KNOWN LOCATION
+Office — 18:42
+
+WITNESSES
+Sarah
+Mike
+You
+
+SUSPECTS
+Sarah     ★★★☆☆
+Mike      ★★★★☆
+Tom       ★★☆☆☆
+You       ★☆☆☆☆
+
+EVIDENCE
+✓ Security camera
+✓ Phone records
+? Witness statement
+? Missing keycard
+
+CONTRADICTIONS
+Mike claims he left at 18:30.
+Security camera shows someone leaving at 18:47.
+
+The player should gradually construct their own understanding of what happened.
+
+19. THE SIGNATURE QUESTION
+
+One of the game's recurring mechanics should eventually be:
+
+"What were you doing?"
+
+After an incident, characters may be asked:
+
+What were you doing between 8:00 PM and 8:30 PM?
+
+Different characters provide different accounts.
+
+Their answers can be:
+
+truthful
+
+deceptive
+
+incomplete
+
+mistaken
+
+manipulated
+
+protective of another person
+
+The player compares these accounts against observed events.
+
+The game should not simply tell the player who is lying.
+
+20. MULTIPLE IMPOSTORS
+
+Eventually support multiple Impostors.
+
+But consider allowing situations where:
+
+Impostors don't initially know who their fellow Impostors are.
+
+This creates interesting emergent situations.
+
+One Impostor might accidentally spend several days trying to get another Impostor eliminated.
+
+21. SECRET ALLIANCES
+
+Eventually characters may have hidden objectives.
+
+Examples:
+
+Cultist wants Impostors to win.
+
+Jester wants to be eliminated.
+
+Survivor wants to stay alive.
+
+Assassin wants a particular person dead.
+
+Informant wants to expose an Impostor.
+
+Protector wants a specific character to survive.
+
+This makes suspicious behavior ambiguous.
+
+Someone behaving strangely is not necessarily the Impostor.
+
+22. SETTINGS
+
+Eventually the simulation should support different environments.
+
+Possible scenarios:
+
+Office
+
+Corporate relationships, promotions, coworkers.
+
+High School
+
+Friend groups, rumors, teachers, parties.
+
+University
+
+Dorms, clubs, professors, relationships.
+
+Small Town
+
+Everyone knows everyone.
+
+Island
+
+Restricted locations and resources.
+
+Spaceship
+
+A more traditional Among Us-like environment.
+
+Hospital
+
+Doctors, nurses, patients, restricted areas.
+
+Medieval Kingdom
+
+Nobles, servants, assassins, political alliances.
+
+City
+
+Large-scale social simulation.
+
+The underlying engine should be reusable between settings.
+
+23. CORE GAME LOOP
+
+The eventual game loop should resemble:
+
+LIVE
+ ↓
+SOCIALIZE
+ ↓
+OBSERVE
+ ↓
+INVESTIGATE
+ ↓
+LIE / TELL THE TRUTH
+ ↓
+FORM RELATIONSHIPS
+ ↓
+ACCUSATIONS
+ ↓
+MEETING
+ ↓
+VOTE
+ ↓
+SURVIVE
+ ↓
+WORLD CHANGES
+ ↓
+REPEAT
+
+24. DEVELOPMENT PHILOSOPHY
+
+This project MUST be developed incrementally.
+
+Do NOT attempt to implement the entire game in one pass.
+
+There are multiple development phases.
+
+CRITICAL RULE:
+
+ONLY IMPLEMENT THE CURRENT PHASE.
+
+If I say:
+
+"Build Phase 1"
+
+you build
+Phase 1 only
+.
+
+Do NOT implement Phase 2, 3, 4, or later features just because you know they are planned.
+
+You may design Phase 1's architecture so that later phases can be added cleanly.
+
+But do not prematurely implement future gameplay.
+
+When Phase 1 is complete, STOP.
+
+Wait for my explicit instruction before continuing.
+
+25. PHASE 1 — FOUNDATIONAL TEXT SIMULATION
+
+This is the first phase and MUST be completed before anything else.
+
+The goal is to establish the core simulation architecture.
+
+Phase 1 should include:
+
+Server
+
+Node.js
+
+Express.js
+
+clean server structure
+
+API endpoints appropriate for the simulation
+
+game state management
+
+server-side simulation logic
+
+Client
+
+HTML
+
+CSS
+
+browser JavaScript
+
+clean text-based UI
+
+Game
+
+Implement a functional basic simulation with:
+
+player character
+
+several NPCs
+
+time
+
+days
+
+locations
+
+NPC schedules
+
+NPC movement
+
+basic player actions
+
+basic NPC actions
+
+event log
+
+basic conversations
+
+game state
+
+turn/time progression
+
+The player should be able to actually play through a small simulation.
+
+Example:
+
+DAY 1 — 8:00 AM
+
+You arrive at the office.
+
+Sarah is at her desk.
+
+Mike is walking toward the cafeteria.
+
+James is talking to Tom.
+
+What do you do?
+
+> Talk to Sarah
+> Follow Mike
+> Talk to James
+> Go to cafeteria
+> Check schedule
+> Wait
+
+Selecting an action should change the simulation.
+
+The simulation should produce meaningful text.
+
+26. PHASE 1 ARCHITECTURE REQUIREMENTS
+
+Even though Phase 1 is small, design it properly.
+
+Separate concerns.
+
+For example, conceptually:
+
+server/
+ ├── game/
+ │   ├── GameEngine
+ │   ├── World
+ │   ├── Player
+ │   ├── NPC
+ │   ├── Time
+ │   ├── Location
+ │   └── Event
+ │
+ ├── routes/
+ │
+ └── server
+
+The exact structure should depend on the existing repository.
+
+Do NOT blindly copy this structure if the repository already has conventions.
+
+The architecture should make later additions possible:
+
+roles
+relationships
+memories
+evidence
+meetings
+voting
+life simulation
+
+without requiring a complete rewrite.
+
+27. PHASE 1 QUALITY BAR
+
+Do not interpret Phase 1 as:
+
+"Create the smallest amount of code that technically works."
+
+Instead:
+
+Build the best possible foundation for the project while remaining within Phase 1.
+
+You should go all-out within the scope of Phase 1.
+
+That means:
+
+polished implementation
+
+clean architecture
+
+good naming
+
+maintainable code
+
+sensible abstractions
+
+useful comments where appropriate
+
+validation
+
+error handling
+
+responsive UI
+
+good text presentation
+
+coherent simulation
+
+no obvious dead ends
+
+no unnecessary placeholders
+
+no fake functionality
+
+no knowingly broken systems
+
+Do not cut corners merely because this is an early phase.
+
+28. BEFORE CODING PHASE 1
+
+First inspect the repository.
+
+Determine:
+
+current files
+
+package.json
+
+existing dependencies
+
+scripts
+
+current server
+
+current frontend
+
+entry points
+
+existing assets
+
+existing conventions
+
+whether anything is already implemented
+
+whether the repository contains instructions
+
+whether there are tests
+
+whether there is an existing build process
+
+Do not destroy existing functionality without understanding it.
+
+If something already exists that can be reused, reuse it.
+
+If the repository contains its own instructions, follow them.
+
+29. DO NOT ASK UNNECESSARY QUESTIONS
+
+If you have enough information to proceed, proceed.
+
+Do not stop to ask me about minor implementation details.
+
+Make sensible engineering decisions yourself.
+
+However, if there is a genuinely blocking ambiguity — such as an existing architecture that fundamentally conflicts with the requested implementation — explain the issue before making a destructive change.
+
+30. TESTING
+
+For every phase, testing matters.
+
+When appropriate:
+
+run the project
+
+inspect console output
+
+test API endpoints
+
+test browser behavior
+
+test important game actions
+
+test invalid actions
+
+test state transitions
+
+test edge cases
+
+Do not claim something works if you have not verified it when verification is possible.
+
+Fix issues you discover within the current phase.
+
+31. NO FAKE COMPLETION
+
+Never say:
+
+"Implemented"
+
+if you merely created placeholders.
+
+Never claim a feature is functional if it isn't.
+
+If a future feature is intentionally not implemented because it belongs to another phase, say so.
+
+Example:
+
+"Role mechanics are intentionally not implemented because they belong to Phase 3."
+
+That is correct.
+
+32. PHASE 2 — SOCIAL SIMULATION
+
+Do NOT implement until explicitly instructed.
+
+Phase 2 should introduce:
+
+deeper NPC personalities
+
+relationships
+
+trust
+
+reputation
+
+memories
+
+rumors
+
+social opinions
+
+dynamic conversations
+
+NPC goals
+
+NPC reactions
+
+more sophisticated schedules
+
+social consequences
+
+The world should begin feeling like a living community.
+
+33. PHASE 3 — HIDDEN ROLES
+
+Do NOT implement until explicitly instructed.
+
+Introduce:
+
+Innocent
+
+Impostor
+
+Detective
+
+Guardian
+
+Jester
+
+other role architecture
+
+Implement:
+
+role assignment
+
+hidden information
+
+role-specific objectives
+
+role-specific behavior
+
+server-side secrecy
+
+victory conditions
+
+Do not expose hidden information through the client.
+
+34. PHASE 4 — INVESTIGATION AND SOCIAL DEDUCTION
+
+Do NOT implement until explicitly instructed.
+
+Introduce:
+
+incidents
+
+deaths/eliminations
+
+evidence
+
+witnesses
+
+contradictions
+
+accusations
+
+meetings
+
+defenses
+
+voting
+
+elimination
+
+reputation consequences
+
+memory consequences
+
+Implement the system deeply rather than as superficial menus.
+
+35. PHASE 5 — IMPOSTOR GAMEPLAY
+
+Do NOT implement until explicitly instructed.
+
+Focus specifically on the Impostor experience.
+
+Implement mechanics such as:
+
+manipulation
+
+alibis
+
+framing
+
+rumors
+
+strategic relationships
+
+secret actions
+
+sabotage
+
+elimination
+
+witness manipulation
+
+avoiding suspicion
+
+maintaining normal life
+
+The goal is to make being the Impostor an entirely different play style from being Innocent.
+
+36. PHASE 6 — LIFE SIMULATION
+
+Do NOT implement until explicitly instructed.
+
+Introduce the larger BitLife-like layer:
+
+aging
+
+money
+
+jobs
+
+careers
+
+education
+
+relationships
+
+marriage
+
+children
+
+homes
+
+travel
+
+life events
+
+reputation
+
+long-term consequences
+
+Integrate these with the social deduction system rather than making them disconnected menus.
+
+37. PHASE 7 — ADVANCED ROLES AND OBJECTIVES
+
+Do NOT implement until explicitly instructed.
+
+Introduce:
+
+Jester
+
+Cultist
+
+Survivor
+
+Assassin
+
+Informant
+
+Medium
+
+Judge
+
+Analyst
+
+Mimic
+
+Saboteur
+
+other custom roles
+
+Support independent and conflicting victory conditions.
+
+38. PHASE 8 — EMERGENT STORY SYSTEM
+
+Do NOT implement until explicitly instructed.
+
+Focus on making the simulation generate memorable stories.
+
+NPC systems should interact.
+
+Examples:
+
+friendship
++
+betrayal
++
+murder
++
+investigation
++
+romance
++
+rumor
++
+career
++
+politics
+
+should be able to produce unexpected narratives.
+
+The goal is for the player to tell stories about things that happened in their simulation.
+
+39. PHASE 9 — SETTINGS AND REPLAYABILITY
+
+Do NOT implement until explicitly instructed.
+
+Support different environments and scenario configurations.
+
+The underlying systems should be reusable.
+
+Allow different:
+
+maps
+
+populations
+
+roles
+
+rules
+
+objectives
+
+difficulty
+
+event frequencies
+
+simulation settings
+
+40. PHASE 10 — POLISH
+
+Do NOT implement until explicitly instructed.
+
+Focus on:
+
+UI polish
+
+animations where appropriate
+
+accessibility
+
+responsive design
+
+better typography
+
+better text presentation
+
+onboarding
+
+tutorials
+
+settings
+
+save/load
+
+error handling
+
+performance
+
+balancing
+
+replayability
+
+41. PHASE 11 — ADVANCED SYSTEMS
+
+Only implement when explicitly requested.
+
+Potential future features:
+
+persistent worlds
+
+multiple save slots
+
+achievements
+
+statistics
+
+advanced AI
+
+larger populations
+
+multiplayer
+
+WebSockets
+
+player-hosted games
+
+online social deduction
+
+procedural scenarios
+
+modding
+
+scenario editor
+
+These are NOT part of the initial implementation.
+
+42. IMPORTANT: DO NOT OVERENGINEER PHASE 1
+
+There is a distinction between:
+
+Good preparation
+
+Designing clean interfaces and state structures that can later support:
+
+roles
+memories
+relationships
+evidence
+
+and:
+
+Bad premature implementation
+
+Building:
+
+role engine
+AI belief system
+multiplayer networking
+database architecture
+advanced procedural storytelling
+
+during Phase 1.
+
+Do the first.
+
+Do not do the second.
+
+43. UI PRINCIPLES
+
+The interface should feel like a polished text simulation rather than a developer console.
+
+Use:
+
+clear typography
+
+readable event history
+
+distinct dialogue
+
+action buttons
+
+contextual information
+
+visual hierarchy
+
+clear time/day indicators
+
+location information
+
+notifications
+
+subtle visual feedback
+
+Do not make the UI unnecessarily complicated.
+
+The text itself is the main game.
+
+44. TEXT STYLE
+
+Game text should be concise but evocative.
+
+Bad:
+
+Sarah.moveTo(location="office")
+
+Good:
+
+9:14 AM
+
+Sarah arrives at the office and drops her bag beside her desk.
+
+Player action:
+
+What do you do?
+
+NPC dialogue:
+
+Sarah:
+ "You're early today."
+
+The simulation should feel like a story without becoming a fully scripted novel.
+
+45. DATA DESIGN
+
+Favor structured state over strings scattered throughout the codebase.
+
+For example, conceptually:
+
+{
+
+  id
+,
+
+  name
+,
+
+  age
+,
+
+  personality
+,
+
+  location
+,
+
+  schedule
+,
+
+  relationships
+,
+
+  memories
+,
+
+  goals
+
+}
+
+rather than dozens of unrelated variables.
+
+Keep state deterministic where practical.
+
+Randomness should be controlled enough that debugging remains possible.
+
+46. SIMULATION TIME
+
+The game should eventually support:
+
+year
+month
+day
+hour
+minute
+
+But Phase 1 does not need every level of temporal complexity.
+
+Implement only the level of time needed for Phase 1 while leaving room to expand.
+
+47. EVENT SYSTEM
+
+Eventually create a reusable event model.
+
+Events might eventually include:
+
+conversation
+movement
+relationship_change
+rumor
+argument
+incident
+death
+discovery
+meeting
+vote
+life_event
+career_event
+
+Phase 1 should establish the foundation for events without implementing every future event type.
+
+48. SAVE SYSTEM
+
+Do not build a huge persistence system in Phase 1 unless the existing repository already requires it.
+
+However, keep game state structured so persistence can be added later.
+
+49. CODE QUALITY
+
+Prefer:
+
+readable code
+
+small cohesive modules
+
+clear interfaces
+
+predictable state transitions
+
+minimal duplication
+
+meaningful variable names
+
+defensive validation
+
+comments explaining WHY rather than WHAT
+
+simple abstractions
+
+Avoid:
+
+giant monolithic files
+
+mysterious global variables
+
+duplicated state
+
+unnecessary dependencies
+
+premature abstractions
+
+hardcoded magic values everywhere
+
+50. WHEN I REQUEST A PHASE
+
+When I say:
+
+"Build Phase 1"
+
+you must:
+
+Inspect the repository.
+
+Understand the existing project.
+
+Plan the implementation.
+
+Implement Phase 1 completely.
+
+Run/test the project.
+
+Fix problems found during testing.
+
+Review your implementation.
+
+Improve it within Phase 1's scope.
+
+Report what was changed.
+
+Report what was tested.
+
+Explicitly state what was intentionally left for future phases.
+
+STOP.
+
+Do not continue automatically into Phase 2.
+
+When I later say:
+
+"Build Phase 2"
+
+repeat the same process for Phase 2.
+
+51. "GO ALL OUT" RULE
+
+For whichever phase I explicitly authorize,
+maximize the quality and completeness of that phase
+.
+
+Interpret "go all out" as:
+
+implement the full intended scope
+
+make the systems interact
+
+handle edge cases
+
+polish the UI
+
+test thoroughly
+
+improve architecture
+
+fix discovered bugs
+
+consider player experience
+
+consider future extensibility
+
+avoid superficial implementations
+
+But maintain the phase boundary.
+
+In other words:
+
+Go as deep as possible, but not as wide as possible.
+
+Do not sneak future phases into the current one.
+
+52. PHASE COMPLETION STANDARD
+
+A phase is not complete merely because the code compiles.
+
+Before declaring a phase complete, ask:
+
+Engineering
+
+Is the architecture coherent?
+
+Is the code maintainable?
+
+Are state transitions safe?
+
+Are errors handled?
+
+Gameplay
+
+Is the feature actually playable?
+
+Does it produce interesting outcomes?
+
+Does it behave consistently?
+
+UX
+
+Can the player understand what is happening?
+
+Are actions clear?
+
+Is the text readable?
+
+Does the interface communicate state?
+
+Future compatibility
+
+Can the next phase build upon this without unnecessary rewrites?
+
+Testing
+
+Did you actually run it?
+
+Did you test important paths?
+
+Did you test invalid actions?
+
+Did you fix problems?
+
+Only then consider the phase complete.
+
+53. MOST IMPORTANT CREATIVE GOAL
+
+The ultimate goal of
+A Text Impostor
+ is not to reproduce Among Us.
+
+It is to create a simulation where the player can eventually say:
+
+"I can't believe that happened."
+
+The best moments should come from systems interacting unexpectedly.
+
+Examples:
+
+Your best friend is secretly the Impostor.
+
+You accidentally defend the Impostor.
+
+The Detective trusts you because you saved them years earlier.
+
+You falsely accuse an innocent person and create an enemy.
+
+Two Impostors don't know each other.
+
+A Jester intentionally behaves like an Impostor.
+
+Your spouse is secretly investigating you.
+
+Someone lies to protect you.
+
+Someone tells the truth but nobody believes them.
+
+Your career gives you access to evidence.
+
+A random life event creates the key clue.
+
+You successfully frame someone you've known for ten years.
+
+The person you thought was your greatest enemy was actually protecting you.
+
+The simulation should generate these stories naturally.
+
+54. FINAL INSTRUCTION
+
+You are not merely implementing a collection of features.
+
+You are building the foundation of a
+persistent text-based social simulation and hidden-role game
+.
+
+Prioritize:
+
+simulation → believable NPCs → information → relationships → social deduction → emergent stories
+
+rather than:
+
+menus → buttons → scripted events
+
+For the first request, implement
+PHASE 1 ONLY
+.
+
+Do not implement future phases until explicitly instructed.
+
+When implementing an authorized phase, push that phase to the highest reasonable level of quality and completeness.
+
+When finished, stop and wait for the next phase instruction.
+
+Repository:
+[YOUR REPOSITORY]
+
+Project: A Text Impostor
+
+Current authorized phase: PHASE 1 ONLY.
