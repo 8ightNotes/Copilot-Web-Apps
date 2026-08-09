@@ -4,6 +4,7 @@ const {
   DEFAULT_START_MINUTE,
   LOCATION_IDS,
   MAX_EVENT_LOG_LENGTH,
+  MINUTES_PER_DAY,
 } = require('./constants');
 const { GameValidationError } = require('./errors');
 const { SimulationTime, formatClock } = require('./time');
@@ -217,22 +218,36 @@ class GameEngine {
   }
 
   advanceTime(minutes) {
-    const previousDay = this.time.day;
-    this.time.advance(minutes);
-    this.world.syncNpcSchedules(this.time.minuteOfDay, ({ npc, from, to, activity }) => {
-      const movementText = to
-        ? from
-          ? `${npc.name} leaves the ${from.shortName.toLowerCase()} for the ${to.shortName.toLowerCase()} to ${activity}.`
-          : `${npc.name} is now at the ${to.shortName.toLowerCase()} to ${activity}.`
-        : `${npc.name} is following a schedule with an unknown destination.`;
-      this.addEvent('npc_movement', movementText, { npcId: npc.id });
-    });
+    let remaining = minutes;
 
-    if (this.time.day !== previousDay) {
-      this.addEvent(
-        'day_start',
-        `A new day begins. Day ${this.time.day} starts at ${minutesToClock(this.time.minuteOfDay)}.`,
-      );
+    while (remaining > 0) {
+      const minutesUntilDayEnd = MINUTES_PER_DAY - this.time.minuteOfDay;
+      const step = Math.min(remaining, minutesUntilDayEnd);
+      const previousDay = this.time.day;
+      this.time.advance(step);
+
+      if (this.time.day !== previousDay) {
+        this.addEvent(
+          'day_start',
+          `A new day begins. Day ${this.time.day} starts at ${minutesToClock(this.time.minuteOfDay)}.`,
+        );
+      }
+
+      this.world.syncNpcSchedules(this.time.minuteOfDay, ({ npc, from, to, activity }) => {
+        let movementText;
+        if (!to) {
+          movementText = `${npc.name} is following a schedule with an unknown destination.`;
+        } else if (!from) {
+          movementText = `${npc.name} is now at the ${to.shortName.toLowerCase()} to ${activity}.`;
+        } else if (from.id === to.id) {
+          movementText = `${npc.name} remains at the ${to.shortName.toLowerCase()} and is now ${activity}.`;
+        } else {
+          movementText = `${npc.name} leaves the ${from.shortName.toLowerCase()} for the ${to.shortName.toLowerCase()} to ${activity}.`;
+        }
+        this.addEvent('npc_movement', movementText, { npcId: npc.id });
+      });
+
+      remaining -= step;
     }
 
     this.turn += 1;
