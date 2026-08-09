@@ -220,9 +220,11 @@ class GameEngine {
     const previousDay = this.time.day;
     this.time.advance(minutes);
     this.world.syncNpcSchedules(this.time.minuteOfDay, ({ npc, from, to, activity }) => {
-      const movementText = from && to
-        ? `${npc.name} leaves the ${from.shortName.toLowerCase()} for the ${to.shortName.toLowerCase()} to ${activity}.`
-        : `${npc.name} is now at the ${to.shortName.toLowerCase()} to ${activity}.`;
+      const movementText = to
+        ? from
+          ? `${npc.name} leaves the ${from.shortName.toLowerCase()} for the ${to.shortName.toLowerCase()} to ${activity}.`
+          : `${npc.name} is now at the ${to.shortName.toLowerCase()} to ${activity}.`
+        : `${npc.name} is following a schedule with an unknown destination.`;
       this.addEvent('npc_movement', movementText, { npcId: npc.id });
     });
 
@@ -263,7 +265,7 @@ class GameEngine {
     this.nextEventId += 1;
 
     if (this.events.length > MAX_EVENT_LOG_LENGTH) {
-      this.events.shift();
+      this.events = this.events.slice(-MAX_EVENT_LOG_LENGTH);
     }
   }
 }
