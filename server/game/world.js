@@ -53,7 +53,7 @@ const NPC_BLUEPRINTS = [
     homeLocationId: LOCATION_IDS.HOME,
     schedule: [
       scheduleEntry(0, 7 * 60 + 45, LOCATION_IDS.HOME, 'sleeping'),
-      scheduleEntry(7 * 60 + 45, 9 * 60, LOCATION_IDS.TOWN_SQUARE, 'walking to work'),
+      scheduleEntry(7 * 60 + 45, 9 * 60, LOCATION_IDS.OFFICE, 'settling in at her desk'),
       scheduleEntry(9 * 60, 12 * 60, LOCATION_IDS.OFFICE, 'working at her desk'),
       scheduleEntry(12 * 60, 13 * 60, LOCATION_IDS.CAFETERIA, 'having lunch'),
       scheduleEntry(13 * 60, 17 * 60, LOCATION_IDS.OFFICE, 'sketching product ideas'),
@@ -102,7 +102,7 @@ const NPC_BLUEPRINTS = [
     schedule: [
       scheduleEntry(0, 6 * 60 + 30, LOCATION_IDS.HOME, 'sleeping'),
       scheduleEntry(6 * 60 + 30, 8 * 60, LOCATION_IDS.GYM, 'starting the day at the gym'),
-      scheduleEntry(8 * 60, 9 * 60, LOCATION_IDS.TOWN_SQUARE, 'commuting to work'),
+      scheduleEntry(8 * 60, 9 * 60, LOCATION_IDS.OFFICE, 'organizing his morning'),
       scheduleEntry(9 * 60, 12 * 60, LOCATION_IDS.OFFICE, 'running project check-ins'),
       scheduleEntry(12 * 60, 13 * 60, LOCATION_IDS.CAFETERIA, 'having lunch'),
       scheduleEntry(13 * 60, 18 * 60, LOCATION_IDS.OFFICE, 'reviewing project plans'),
