@@ -13,6 +13,7 @@ const PLAYER = {
   id: 'player',
   name: 'You',
   homeLocationId: LOCATION_IDS.HOME,
+  startLocationId: LOCATION_IDS.OFFICE,
 };
 
 function minutesToClock(minutes) {
@@ -26,17 +27,16 @@ class GameEngine {
 
   reset() {
     this.time = new SimulationTime(DEFAULT_START_DAY, DEFAULT_START_MINUTE);
-    this.world = new World();
+    this.world = new World(DEFAULT_START_MINUTE);
     this.player = {
       ...PLAYER,
-      locationId: LOCATION_IDS.OFFICE,
+      locationId: PLAYER.startLocationId,
     };
     this.events = [];
     this.nextEventId = 1;
     this.turn = 0;
     this.notice = 'The day is waiting for you.';
 
-    this.world.syncNpcSchedules(this.time.minuteOfDay);
     this.addEvent(
       'day_start',
       `You arrive at the Northstar Office. The morning is already in motion.`,

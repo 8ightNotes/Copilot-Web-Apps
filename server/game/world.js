@@ -151,18 +151,21 @@ function findScheduleEntry(schedule, minuteOfDay) {
 }
 
 class World {
-  constructor() {
+  constructor(initialMinuteOfDay = 0) {
     this.locations = clone(LOCATIONS);
     this.npcs = new Map(
-      NPC_BLUEPRINTS.map((blueprint) => [
-        blueprint.id,
-        {
-          ...clone(blueprint),
-          locationId: blueprint.homeLocationId,
-          activity: 'sleeping',
-          dialogueIndex: 0,
-        },
-      ]),
+      NPC_BLUEPRINTS.map((blueprint) => {
+        const initialEntry = findScheduleEntry(blueprint.schedule, initialMinuteOfDay);
+        return [
+          blueprint.id,
+          {
+            ...clone(blueprint),
+            locationId: initialEntry.locationId,
+            activity: initialEntry.activity,
+            dialogueIndex: 0,
+          },
+        ];
+      }),
     );
   }
 
