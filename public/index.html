@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#102326">
+    <title>A Text Impostor</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="site-header">
+        <div>
+          <p class="eyebrow">A living text simulation</p>
+          <h1>A Text Impostor</h1>
+          <p class="subtitle">Start with an ordinary day. Pay attention to who is where.</p>
+        </div>
+        <div class="phase-mark" aria-label="Current development phase">
+          <span>PHASE</span>
+          <strong>01</strong>
+        </div>
+      </header>
+
+      <section class="status-strip" aria-label="Current game status">
+        <div class="status-item">
+          <span class="status-label">Time</span>
+          <strong id="time-label">Loading…</strong>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Location</span>
+          <strong id="location-label">Loading…</strong>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Turn</span>
+          <strong id="turn-label">—</strong>
+        </div>
+      </section>
+
+      <main class="game-layout">
+        <section class="card scene-card" aria-labelledby="scene-heading">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">The world around you</p>
+              <h2 id="scene-heading">Scene</h2>
+            </div>
+            <span id="period-label" class="period-badge">—</span>
+          </div>
+          <p id="scene-description" class="scene-description">Loading the simulation…</p>
+
+          <div class="section-divider"></div>
+          <div class="section-heading">
+            <h3>People here</h3>
+            <span id="nearby-count" class="count-badge">0</span>
+          </div>
+          <ul id="nearby-people" class="people-list" aria-live="polite"></ul>
+
+          <div class="section-divider"></div>
+          <div class="section-heading">
+            <h3>Neighborhood map</h3>
+            <span class="muted-label">Population shifts with time</span>
+          </div>
+          <div id="neighborhood-map" class="location-grid"></div>
+        </section>
+
+        <aside class="card actions-card" aria-labelledby="actions-heading">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">Your next move</p>
+              <h2 id="actions-heading">What do you do?</h2>
+            </div>
+          </div>
+          <div id="action-feedback" class="action-feedback" role="status" aria-live="polite">
+            Loading available actions…
+          </div>
+          <div id="action-groups" class="action-groups"></div>
+          <button id="reset-button" class="reset-button" type="button">Begin a new day</button>
+        </aside>
+
+        <section class="card log-card" aria-labelledby="log-heading">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">What has happened</p>
+              <h2 id="log-heading">Event log</h2>
+            </div>
+            <span class="muted-label">Newest first</span>
+          </div>
+          <ol id="event-log" class="event-log" aria-live="polite"></ol>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span>Phase 1 · Foundational text simulation</span>
+        <span>Observe carefully. The world keeps moving.</span>
+      </footer>
+    </div>
+    <noscript>
+      <p class="noscript-message">JavaScript is required to play A Text Impostor.</p>
+    </noscript>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
