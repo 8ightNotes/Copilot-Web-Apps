@@ -65,18 +65,16 @@ async function submitAction(payload) {
         app.state = result.state;
       }
       app.message = result.error || 'That action could not be completed.';
-      render();
       return;
     }
 
     app.state = result;
     app.message = result.notice;
-    render();
   } catch (error) {
     app.message = error.message;
-    render();
   } finally {
     setBusy(false);
+    render();
   }
 }
 
@@ -90,12 +88,11 @@ async function resetGame() {
     const response = await fetch('/api/game/reset', { method: 'POST' });
     app.state = await parseResponse(response);
     app.message = 'A fresh simulation is ready.';
-    render();
   } catch (error) {
     app.message = error.message;
-    render();
   } finally {
     setBusy(false);
+    render();
   }
 }
 
