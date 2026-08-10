@@ -3,143 +3,222 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#102326">
+    <meta name="theme-color" content="#0a0e1a">
     <title>A Text Impostor</title>
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
-    <div class="app-shell">
-      <header class="site-header">
-        <div>
-          <p class="eyebrow">A living text simulation</p>
-          <h1>A Text Impostor</h1>
-          <p class="subtitle">Start with an ordinary day. Pay attention to who is where.</p>
+    <!-- MAIN MENU SCREEN -->
+    <div id="menu-screen" class="screen menu-screen active">
+      <div class="menu-container">
+        <div class="menu-glow"></div>
+        <div class="menu-badge">PHASE 04</div>
+        <h1 class="menu-title">A Text Impostor</h1>
+        <p class="menu-tagline">Infiltrate. Deceive. Survive.</p>
+        <div class="menu-buttons">
+          <button id="btn-new-game" class="menu-btn primary" type="button">
+            <span class="btn-icon">▶</span> New Game
+          </button>
+          <button id="btn-continue" class="menu-btn" type="button">
+            <span class="btn-icon">↻</span> Continue
+          </button>
+          <button id="btn-how-to-play" class="menu-btn" type="button">
+            <span class="btn-icon">?</span> How to Play
+          </button>
         </div>
-        <div class="phase-mark" aria-label="Current development phase">
-          <span>PHASE</span>
-          <strong>03</strong>
+        <p class="menu-footer">A hidden-role text simulation · Phase 4</p>
+      </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="screen game-screen">
+      <!-- Top HUD bar -->
+      <header class="hud-bar">
+        <button id="hud-menu-btn" class="hud-btn" type="button" title="Menu">☰</button>
+        <div class="hud-stats">
+          <div class="hud-stat">
+            <span class="hud-label">Day</span>
+            <strong id="hud-day">1</strong>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">Time</span>
+            <strong id="hud-time">—</strong>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">Location</span>
+            <strong id="hud-location">—</strong>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">Turn</span>
+            <strong id="hud-turn">—</strong>
+          </div>
+          <div class="hud-stat">
+            <span class="hud-label">Rep</span>
+            <strong id="hud-rep">—</strong>
+          </div>
+        </div>
+        <div class="hud-actions">
+          <button id="hud-role-btn" class="hud-btn glow" type="button" title="Your Role">🎭</button>
+          <button id="hud-map-btn" class="hud-btn" type="button" title="Map">🗺</button>
+          <button id="hud-social-btn" class="hud-btn" type="button" title="Social">👥</button>
+          <button id="hud-log-btn" class="hud-btn" type="button" title="Event Log">📜</button>
         </div>
       </header>
 
-      <section class="status-strip" aria-label="Current game status">
-        <div class="status-item">
-          <span class="status-label">Time</span>
-          <strong id="time-label">Loading…</strong>
-        </div>
-        <div class="status-item">
-          <span class="status-label">Location</span>
-          <strong id="location-label">Loading…</strong>
-        </div>
-        <div class="status-item">
-          <span class="status-label">Turn</span>
-          <strong id="turn-label">—</strong>
-        </div>
-        <div class="status-item">
-          <span class="status-label">Reputation</span>
-          <strong id="reputation-label">Loading…</strong>
-        </div>
-      </section>
-
-      <main class="game-layout">
-        <section class="card scene-card" aria-labelledby="scene-heading">
-          <div class="card-heading">
-            <div>
-              <p class="eyebrow">The world around you</p>
-              <h2 id="scene-heading">Scene</h2>
-            </div>
-            <span id="period-label" class="period-badge">—</span>
+      <!-- Main game area -->
+      <main class="game-main">
+        <!-- Scene panel (left) -->
+        <section class="panel scene-panel">
+          <div class="panel-header">
+            <span id="period-badge" class="badge">—</span>
+            <h2 id="scene-heading">Scene</h2>
           </div>
-          <p id="scene-description" class="scene-description">Loading the simulation…</p>
-
-          <div class="section-divider"></div>
-          <div class="section-heading">
-            <h3>People here</h3>
-            <span id="nearby-count" class="count-badge">0</span>
+          <p id="scene-description" class="narrative-text">Loading the simulation…</p>
+          <div class="divider"></div>
+          <div class="panel-subheader">
+            <h3>People Nearby</h3>
+            <span id="nearby-count" class="count-pip">0</span>
           </div>
-          <ul id="nearby-people" class="people-list" aria-live="polite"></ul>
-
-          <div class="section-divider"></div>
-          <div class="section-heading">
-            <h3>Neighborhood map</h3>
-            <span class="muted-label">Population shifts with time</span>
-          </div>
-          <div id="neighborhood-map" class="location-grid"></div>
+          <ul id="nearby-people" class="people-grid" aria-live="polite"></ul>
         </section>
 
-        <aside class="card actions-card" aria-labelledby="actions-heading">
-          <div class="card-heading">
-            <div>
-              <p class="eyebrow">Your next move</p>
-              <h2 id="actions-heading">What do you do?</h2>
-            </div>
+        <!-- Actions panel (right) -->
+        <aside class="panel actions-panel">
+          <div class="panel-header">
+            <h2>Actions</h2>
           </div>
-          <div id="action-feedback" class="action-feedback" role="status" aria-live="polite">
+          <div id="action-feedback" class="feedback-box" role="status" aria-live="polite">
             Loading available actions…
           </div>
-          <section class="role-panel" aria-labelledby="role-heading">
-            <div class="section-heading">
-              <h3 id="role-heading">Your private role</h3>
-              <span id="role-faction" class="muted-label">Loading…</span>
-            </div>
-            <p id="role-summary" class="role-summary">Loading your assignment…</p>
-            <div class="role-objective">
-              <strong id="role-objective-label">Objective</strong>
-              <span id="role-objective-progress">—</span>
-              <p id="role-objective-description">Loading your private objective…</p>
-            </div>
-            <div id="role-outcome" class="role-outcome" role="status" aria-live="polite"></div>
-          </section>
           <div id="action-groups" class="action-groups"></div>
-          <button id="reset-button" class="reset-button" type="button">Begin a new day</button>
+          <button id="reset-button" class="btn-danger" type="button">⟳ Begin a New Day</button>
         </aside>
-
-        <section class="card social-card" aria-labelledby="social-heading">
-          <div class="card-heading">
-            <div>
-              <p class="eyebrow">The social fabric</p>
-              <h2 id="social-heading">What people remember</h2>
-            </div>
-            <span class="muted-label">Trust changes over time</span>
-          </div>
-          <div class="social-grid">
-            <section class="social-section" aria-labelledby="relationships-heading">
-              <div class="section-heading">
-                <h3 id="relationships-heading">Relationships</h3>
-              </div>
-              <ul id="relationships-list" class="social-list"></ul>
-            </section>
-            <section class="social-section" aria-labelledby="memories-heading">
-              <div class="section-heading">
-                <h3 id="memories-heading">Your memories</h3>
-              </div>
-              <ul id="memory-list" class="social-list"></ul>
-            </section>
-            <section class="social-section" aria-labelledby="rumors-heading">
-              <div class="section-heading">
-                <h3 id="rumors-heading">Rumors in circulation</h3>
-              </div>
-              <ul id="rumor-list" class="social-list"></ul>
-            </section>
-          </div>
-        </section>
-
-        <section class="card log-card" aria-labelledby="log-heading">
-          <div class="card-heading">
-            <div>
-              <p class="eyebrow">What has happened</p>
-              <h2 id="log-heading">Event log</h2>
-            </div>
-            <span class="muted-label">Newest first</span>
-          </div>
-          <ol id="event-log" class="event-log" aria-live="polite"></ol>
-        </section>
       </main>
-
-      <footer class="site-footer">
-        <span>Phase 3 · Hidden-role simulation</span>
-        <span>Observe carefully. The world keeps moving.</span>
-      </footer>
     </div>
+
+    <!-- MODAL: Role Info -->
+    <div id="modal-role" class="modal-overlay" aria-hidden="true">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>🎭 Your Secret Role</h2>
+          <button class="modal-close" data-close-modal="modal-role" type="button">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="role-card">
+            <div class="role-header">
+              <h3 id="role-heading">Loading…</h3>
+              <span id="role-faction" class="role-faction-badge">—</span>
+            </div>
+            <p id="role-summary" class="role-desc">Loading your assignment…</p>
+            <div class="role-objective-box">
+              <div class="role-obj-header">
+                <strong id="role-objective-label">Objective</strong>
+                <span id="role-objective-progress" class="role-progress-badge">—</span>
+              </div>
+              <p id="role-objective-description">Loading…</p>
+            </div>
+            <div id="role-outcome" class="role-outcome"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Map -->
+    <div id="modal-map" class="modal-overlay" aria-hidden="true">
+      <div class="modal modal-wide">
+        <div class="modal-header">
+          <h2>🗺 Neighborhood Map</h2>
+          <button class="modal-close" data-close-modal="modal-map" type="button">✕</button>
+        </div>
+        <div class="modal-body">
+          <div id="neighborhood-map" class="location-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Social -->
+    <div id="modal-social" class="modal-overlay" aria-hidden="true">
+      <div class="modal modal-wide">
+        <div class="modal-header">
+          <h2>👥 Social Intel</h2>
+          <button class="modal-close" data-close-modal="modal-social" type="button">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="social-tabs">
+            <button class="tab-btn active" data-tab="relationships">Relationships</button>
+            <button class="tab-btn" data-tab="memories">Memories</button>
+            <button class="tab-btn" data-tab="rumors">Rumors</button>
+          </div>
+          <div class="tab-content" id="tab-relationships">
+            <ul id="relationships-list" class="social-list"></ul>
+          </div>
+          <div class="tab-content hidden" id="tab-memories">
+            <ul id="memory-list" class="social-list"></ul>
+          </div>
+          <div class="tab-content hidden" id="tab-rumors">
+            <ul id="rumor-list" class="social-list"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Event Log -->
+    <div id="modal-log" class="modal-overlay" aria-hidden="true">
+      <div class="modal modal-wide">
+        <div class="modal-header">
+          <h2>📜 Event Log</h2>
+          <button class="modal-close" data-close-modal="modal-log" type="button">✕</button>
+        </div>
+        <div class="modal-body">
+          <ol id="event-log" class="event-log" aria-live="polite"></ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: How to Play -->
+    <div id="modal-help" class="modal-overlay" aria-hidden="true">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>? How to Play</h2>
+          <button class="modal-close" data-close-modal="modal-help" type="button">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="help-content">
+            <h3>🕵️ The Setup</h3>
+            <p>You are secretly assigned a <strong>role</strong> in a small neighborhood. Each role has a hidden objective you must complete before the day ends.</p>
+            <h3>🎯 Objectives</h3>
+            <p>Use your <strong>actions</strong> each turn to talk with people, move around, and use your special ability. Build trust — or break it.</p>
+            <h3>⚡ Abilities</h3>
+            <p>Your role gives you a unique ability. Use it wisely — some require a target nearby, and all take time.</p>
+            <h3>👁 Suspicion</h3>
+            <p>NPCs remember what you do. Unusual behavior raises suspicion. If trust falls too low, your cover may be blown.</p>
+            <h3>🏆 Winning</h3>
+            <p>Complete your objective before the day ends. The challenge is to do it without arousing too much suspicion.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Pause/In-game Menu -->
+    <div id="modal-pause" class="modal-overlay" aria-hidden="true">
+      <div class="modal modal-compact">
+        <div class="modal-header">
+          <h2>☰ Menu</h2>
+          <button class="modal-close" data-close-modal="modal-pause" type="button">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="pause-buttons">
+            <button id="pause-resume" class="menu-btn primary" type="button">Resume Game</button>
+            <button id="pause-how" class="menu-btn" type="button">How to Play</button>
+            <button id="pause-quit" class="menu-btn danger" type="button">Quit to Menu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast-container" class="toast-container" aria-live="assertive"></div>
+
     <noscript>
       <p class="noscript-message">JavaScript is required to play A Text Impostor.</p>
     </noscript>
