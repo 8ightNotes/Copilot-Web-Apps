@@ -15,9 +15,13 @@ function createGameRouter(engine) {
     }
   });
 
-  router.post('/reset', (req, res) => {
-    engine.reset();
-    res.json(engine.getState());
+  router.post('/reset', (req, res, next) => {
+    try {
+      engine.reset();
+      res.json(engine.getState());
+    } catch (error) {
+      next(error);
+    }
   });
 
   return router;

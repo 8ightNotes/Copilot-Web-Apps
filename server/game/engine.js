@@ -871,7 +871,7 @@ class GameEngine {
     }
 
     const deadline = this.roles.evaluateDeadline(this.getNow(), {
-      reputationScore: this.social.reputation.score,
+      reputationScore: this.social.getPublicReputation().score,
     });
     if (deadline) {
       this.addEvent(

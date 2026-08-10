@@ -472,7 +472,7 @@ class RoleState {
       : null;
     const succeeded = Boolean(deadline.survive)
       || (
-        objective.progress >= (deadline.minimumProgress || objective.threshold)
+        objective.progress >= (deadline.minimumProgress ?? objective.threshold)
         && (
           deadline.minimumReputation === undefined
           || (reputationScore !== null && reputationScore >= deadline.minimumReputation)
