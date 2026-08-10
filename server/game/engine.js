@@ -294,7 +294,7 @@ class GameEngine {
     const goalText = goalResult && goalResult.completed
       ? `${npc.name} has finished the goal they were working toward.`
       : goalResult && madeProgress
-        ? `${npc.name} made progress on ${npc.goal.label}.`
+      ? `${npc.name} made progress on ${npc.goal?.label || 'the day’s work'}.`
         : `${npc.name} appreciates the offer, even though they have already made progress on that goal.`;
     const memoryText = `You helped ${npc.name}. ${goalText}`;
     this.social.addMemory(npc.id, this.player.id, 'help', memoryText, 3, now, this.player.id);
