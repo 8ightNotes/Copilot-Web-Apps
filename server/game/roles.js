@@ -216,6 +216,8 @@ function shuffle(values, random = randomInt) {
   return shuffled;
 }
 
+// A supplied seed uses a deterministic, non-cryptographic generator for repeatable tests.
+// Unseeded games use crypto.randomInt above so role assignment remains unpredictable.
 function createSeededRandom(seed) {
   let state = 0;
   const seedText = String(seed);

@@ -463,6 +463,9 @@ class GameEngine {
 
     switch (roleId) {
       case ROLE_IDS.IMPOSTOR:
+        if (!target) {
+          throw new GameValidationError('This role ability needs someone nearby.', 'TARGET_REQUIRED');
+        }
         this.social.adjustRelationship(
           target.id,
           this.player.id,
@@ -509,6 +512,9 @@ class GameEngine {
         break;
       }
       case ROLE_IDS.GUARDIAN:
+        if (!target) {
+          throw new GameValidationError('This role ability needs someone nearby.', 'TARGET_REQUIRED');
+        }
         this.social.adjustRelationship(
           target.id,
           this.player.id,
@@ -540,6 +546,9 @@ class GameEngine {
         text = `You stay attentive to ${target.name} and quietly offer your support.`;
         break;
       case ROLE_IDS.JESTER:
+        if (!target) {
+          throw new GameValidationError('This role ability needs someone nearby.', 'TARGET_REQUIRED');
+        }
         this.social.adjustRelationship(
           target.id,
           this.player.id,
@@ -811,7 +820,7 @@ class GameEngine {
       this.time.advance(step);
 
       if (this.time.day !== previousDay) {
-        this.social.socialEncounterKeys.clear();
+        this.social.clearDailyEncounterKeys();
         this.addEvent(
           'day_start',
           `A new day begins. Day ${this.time.day} starts at ${minutesToClock(this.time.minuteOfDay)}.`,

@@ -215,6 +215,10 @@ class SocialState {
     return `${actorId}:${subjectId}`;
   }
 
+  clearDailyEncounterKeys() {
+    this.socialEncounterKeys.clear();
+  }
+
   getRelationship(actorId, subjectId) {
     const key = this.relationshipKey(actorId, subjectId);
     if (!this.relationships.has(key)) {
