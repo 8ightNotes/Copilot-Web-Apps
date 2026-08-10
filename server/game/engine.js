@@ -327,8 +327,10 @@ class GameEngine {
   shareRumor(targetId, rumorId) {
     const npc = this.requireNpcAtCurrentLocation(targetId);
     const now = this.getNow();
-    const rumor = this.social.getRumorForPlayer(rumorId)
-      || this.social.getRumorsKnownBy(this.player.id)[0];
+    const requestedRumorId = typeof rumorId === 'string' ? rumorId.trim() : '';
+    const rumor = requestedRumorId
+      ? this.social.getRumorForPlayer(requestedRumorId)
+      : this.social.getRumorsKnownBy(this.player.id)[0];
     if (!rumor) {
       throw new GameValidationError('You do not know a rumor you can share.');
     }
