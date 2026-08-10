@@ -1,0 +1,20 @@
+{
+  "name": "copilot-web-apps",
+  "version": "1.0.0",
+  "description": "A Text Impostor - Phase 5 with generated NPCs, clickable map, and mini-games",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/8ightNotes/Copilot-Web-Apps.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
