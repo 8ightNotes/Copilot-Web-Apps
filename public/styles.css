@@ -386,6 +386,62 @@ h3 {
   line-height: 1.45;
 }
 
+.role-panel {
+  margin-bottom: 1.2rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(243, 188, 107, 0.3);
+  border-radius: 0.7rem;
+  background: rgba(243, 188, 107, 0.07);
+}
+
+.role-panel .section-heading {
+  margin-bottom: 0.55rem;
+}
+
+.role-summary,
+.role-objective p {
+  margin: 0;
+  color: #d4e1d9;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.role-objective {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 0.65rem;
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border);
+}
+
+.role-objective strong {
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
+.role-objective span {
+  color: var(--mint);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.role-objective p {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.76rem;
+}
+
+.role-outcome {
+  margin-top: 0.7rem;
+  color: var(--mint);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .action-group {
   margin-bottom: 1.15rem;
 }

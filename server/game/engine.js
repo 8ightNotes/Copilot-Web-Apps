@@ -7,6 +7,7 @@ const {
   MINUTES_PER_DAY,
 } = require('./constants');
 const { GameValidationError } = require('./errors');
+const { RoleState } = require('./roles');
 const { SocialState } = require('./social');
 const { SimulationTime, formatClock } = require('./time');
 const { World } = require('./world');
@@ -31,6 +32,7 @@ class GameEngine {
     this.time = new SimulationTime(DEFAULT_START_DAY, DEFAULT_START_MINUTE);
     this.world = new World(DEFAULT_START_MINUTE);
     this.social = new SocialState(this.world);
+    this.roles = new RoleState(this.world);
     this.player = {
       ...PLAYER,
       locationId: PLAYER.startLocationId,
@@ -38,11 +40,15 @@ class GameEngine {
     this.events = [];
     this.nextEventId = 1;
     this.turn = 0;
-    this.notice = 'The day is waiting for you.';
+    this.notice = `You have been assigned the private role of ${this.roles.getPlayerView(this.player.id).name}.`;
 
     this.addEvent(
       'day_start',
       `You arrive at the Northstar Office. The morning is already in motion.`,
+    );
+    this.addEvent(
+      'role_assignment',
+      `Your private role is ${this.roles.getPlayerView(this.player.id).name}. ${this.roles.getPlayerView(this.player.id).summary}`,
     );
     this.addEvent(
       'observation',
@@ -78,7 +84,7 @@ class GameEngine {
 
     return {
       title: 'A Text Impostor',
-      phase: 2,
+      phase: 3,
       turn: this.turn,
       time: this.time.toJSON(),
       player: {
@@ -86,6 +92,7 @@ class GameEngine {
         name: this.player.name,
         locationId: this.player.locationId,
         location: currentLocation,
+        role: this.roles.getPlayerView(this.player.id),
       },
       locations: this.world.getPublicLocations(),
       npcs: publicNpcs,
@@ -94,12 +101,20 @@ class GameEngine {
       eventLog: this.events.slice(-MAX_EVENT_LOG_LENGTH),
       notice: this.notice,
       social,
+      outcome: this.roles.getPublicOutcome(),
     };
   }
 
   performAction(input = {}) {
     if (!input || typeof input !== 'object' || Array.isArray(input)) {
       throw new GameValidationError('Choose an action before continuing.');
+    }
+
+    if (this.roles.getPublicOutcome().status !== 'active') {
+      throw new GameValidationError(
+        'This role challenge is complete. Reset the simulation to play again.',
+        'GAME_OVER',
+      );
     }
 
     const actionId = typeof input.action === 'string' ? input.action.trim() : '';
@@ -118,6 +133,8 @@ class GameEngine {
         return this.shareRumor(input.targetId, input.rumorId);
       case 'follow':
         return this.follow(input.targetId);
+      case 'role_action':
+        return this.useRoleAbility(input.targetId);
       case 'go':
         return this.goTo(input.locationId);
       case 'schedule':
@@ -138,7 +155,11 @@ class GameEngine {
     const conversation = this.social.getConversation(
       npc.id,
       this.time.getPeriod(),
-      { approach: normalizedApproach, now },
+      {
+        approach: normalizedApproach,
+        now,
+        roleContext: this.roles.getNpcBehavior(npc.id),
+      },
     );
     const changes = this.social.getTalkChanges(normalizedApproach);
     const reason = `You had a ${normalizedApproach} conversation with ${npc.name}.`;
@@ -201,6 +222,7 @@ class GameEngine {
         relationship: this.social.getPublicRelationship(npc.id, this.player.id),
       },
     );
+    this.recordRoleProgress('talk', npc.id, now);
     this.advanceTime(15);
 
     return this.getState();
@@ -253,6 +275,7 @@ class GameEngine {
     this.social.addMemory(npc.id, this.player.id, 'help', memoryText, 3, now, this.player.id);
     this.social.addMemory(this.player.id, npc.id, 'help', memoryText, 3, now, npc.id);
     this.recordSocialReactions('help', npc.id, now);
+    this.recordRoleProgress('help', npc.id, now);
 
     this.notice = goalText;
     this.addEvent('goal_progress', goalText, {
@@ -320,6 +343,7 @@ class GameEngine {
       rumorId: response.rumor ? response.rumor.id : null,
       confidence: response.confidence,
     });
+    this.recordRoleProgress('ask_rumor', npc.id, now);
     this.advanceTime(10);
     return this.getState();
   }
@@ -398,7 +422,161 @@ class GameEngine {
       credibility: rumor.credibility,
       relationship: this.social.getPublicRelationship(npc.id, this.player.id),
     });
+    this.recordRoleProgress('share_rumor', npc.id, now);
     this.advanceTime(15);
+    return this.getState();
+  }
+
+  useRoleAbility(targetId) {
+    const ability = this.roles.getAbility(this.player.id);
+    const roleId = this.roles.getRoleId(this.player.id);
+    const now = this.getNow();
+    const target = ability.requiresTarget
+      ? this.requireNpcAtCurrentLocation(targetId)
+      : null;
+    let text;
+
+    switch (roleId) {
+      case 'impostor':
+        this.social.adjustRelationship(
+          target.id,
+          this.player.id,
+          { affinity: 2, trust: 2, respect: 1, suspicion: -1, interactions: 1 },
+          `You spent ordinary time with ${target.name}.`,
+          now,
+        );
+        this.social.adjustRelationship(
+          this.player.id,
+          target.id,
+          { affinity: 1, trust: 1, respect: 1, interactions: 1 },
+          `You blended into the day with ${target.name}.`,
+          now,
+        );
+        this.social.adjustReputation(
+          { kindness: 1, discretion: 1, suspicion: -1 },
+          `You kept your interaction with ${target.name} unremarkable.`,
+          now,
+        );
+        this.social.addMemory(
+          this.player.id,
+          target.id,
+          'role_action',
+          `You spent an ordinary moment with ${target.name}.`,
+          1,
+          now,
+          target.id,
+        );
+        text = `You spend time with ${target.name}, making the interaction feel like part of an ordinary day.`;
+        break;
+      case 'detective': {
+        const schedule = this.world.getScheduleSnapshot(this.time.minuteOfDay);
+        const activePeople = schedule.filter((entry) => entry.current.locationId === this.player.locationId);
+        this.social.addMemory(
+          this.player.id,
+          this.player.id,
+          'observation',
+          `You studied the day’s movements and noted ${activePeople.length} familiar ${activePeople.length === 1 ? 'face' : 'faces'} nearby.`,
+          2,
+          now,
+          this.player.id,
+        );
+        text = `You compare the day’s schedules and note ${activePeople.length} familiar ${activePeople.length === 1 ? 'face' : 'faces'} nearby.`;
+        break;
+      }
+      case 'guardian':
+        this.social.adjustRelationship(
+          target.id,
+          this.player.id,
+          { affinity: 2, trust: 3, respect: 2, suspicion: -1, interactions: 1 },
+          `You quietly looked out for ${target.name}.`,
+          now,
+        );
+        this.social.adjustRelationship(
+          this.player.id,
+          target.id,
+          { affinity: 1, trust: 2, respect: 2, interactions: 1 },
+          `You kept an eye on ${target.name}.`,
+          now,
+        );
+        this.social.adjustReputation(
+          { kindness: 3, trustworthiness: 2, suspicion: -1 },
+          `People noticed you looking out for ${target.name}.`,
+          now,
+        );
+        this.social.addMemory(
+          target.id,
+          this.player.id,
+          'support',
+          `You quietly looked out for ${target.name}.`,
+          2,
+          now,
+          this.player.id,
+        );
+        text = `You stay attentive to ${target.name} and quietly offer your support.`;
+        break;
+      case 'jester':
+        this.social.adjustRelationship(
+          target.id,
+          this.player.id,
+          { affinity: -1, trust: -2, respect: 1, suspicion: 4, interactions: 1 },
+          `You said something unexpectedly provocative to ${target.name}.`,
+          now,
+        );
+        this.social.adjustRelationship(
+          this.player.id,
+          target.id,
+          { respect: 1, suspicion: 1, interactions: 1 },
+          `You stirred the conversation with ${target.name}.`,
+          now,
+        );
+        this.social.adjustReputation(
+          { discretion: -3, suspicion: 3 },
+          `You made an intentionally unsettling impression on ${target.name}.`,
+          now,
+        );
+        this.social.addMemory(
+          target.id,
+          this.player.id,
+          'role_action',
+          `You said something unexpectedly provocative to ${target.name}.`,
+          2,
+          now,
+          this.player.id,
+        );
+        this.recordSocialReactions('follow', target.id, now);
+        text = `You say something provocative to ${target.name} and watch the mood shift.`;
+        break;
+      case 'innocent':
+      default:
+        this.social.adjustReputation(
+          { kindness: 1, trustworthiness: 1, discretion: 1, suspicion: -1 },
+          'You reinforced your ordinary routine.',
+          now,
+        );
+        this.social.addMemory(
+          this.player.id,
+          this.player.id,
+          'role_action',
+          'You took a deliberate moment to keep your day grounded.',
+          1,
+          now,
+          this.player.id,
+        );
+        text = 'You take a deliberate moment to keep your day grounded.';
+        break;
+    }
+
+    const progress = this.roles.recordRoleAbility(this.player.id, target && target.id, now);
+    this.addEvent('role_action', text, {
+      targetId: target ? target.id : null,
+      objective: progress.objective,
+    });
+    this.recordRoleResult(progress);
+    this.notice = progress.completed
+      ? 'Your private role objective is complete.'
+      : `${ability.label} advanced your private objective.`;
+    this.advanceTime(ability.duration);
+
     return this.getState();
   }
 
@@ -459,6 +637,7 @@ class GameEngine {
       npc.id,
     );
     this.recordSocialReactions('follow', npc.id, now);
+    this.recordRoleProgress('follow', npc.id, now);
     this.advanceTime(30);
     return this.getState();
   }
@@ -480,6 +659,7 @@ class GameEngine {
       `You leave the ${previousLocation.shortName.toLowerCase()} and head to the ${destination.shortName.toLowerCase()}.`,
     );
     this.notice = `You arrived at the ${destination.shortName}.`;
+    this.recordRoleProgress('go', null, this.getNow());
     this.advanceTime(30);
 
     return this.getState();
@@ -508,6 +688,7 @@ class GameEngine {
       },
     );
     this.notice = 'You take a moment to orient yourself.';
+    this.recordRoleProgress('schedule', null, this.getNow());
     this.advanceTime(5);
 
     return this.getState();
@@ -519,6 +700,7 @@ class GameEngine {
       `You wait at the ${this.world.getLocation(this.player.locationId).shortName.toLowerCase()} and watch the day move around you.`,
     );
     this.notice = 'Time passes.';
+    this.recordRoleProgress('wait', null, this.getNow());
     this.advanceTime(30);
 
     return this.getState();
@@ -539,6 +721,35 @@ class GameEngine {
       throw new GameValidationError(`${npc.name} is not at ${this.world.getLocation(this.player.locationId).shortName}.`);
     }
     return npc;
+  }
+
+  recordRoleProgress(actionId, targetId, now) {
+    const progress = this.roles.recordPlayerAction(actionId, targetId, now);
+    this.recordRoleResult(progress);
+  }
+
+  recordRoleResult(progress) {
+    if (!progress || progress.progressMade <= 0) {
+      return;
+    }
+
+    this.addEvent(
+      'role_progress',
+      progress.completed
+        ? 'Your private role objective is complete.'
+        : `Your private role objective advances to ${progress.objective.progress}/${progress.objective.threshold}.`,
+      {
+        objective: progress.objective,
+      },
+    );
+
+    if (progress.completed) {
+      this.addEvent(
+        'victory',
+        'You fulfilled your private role objective.',
+        { outcome: this.roles.getPublicOutcome() },
+      );
+    }
   }
 
   getNow() {
@@ -593,6 +804,7 @@ class GameEngine {
         this.addEvent('npc_movement', movementText, { npcId: npc.id });
 
         const now = this.getNow();
+        this.roles.recordNpcScheduleChange(npc.id, now);
         if (entry.goalId) {
           const goalResult = this.social.advanceGoal(
             npc.id,

@@ -1,6 +1,6 @@
 # A Text Impostor
 
-Phase 2 is a small, server-side social simulation built with Node.js and Express.
+Phase 3 is a small, server-side hidden-role social simulation built with Node.js and Express.
 
 ## Run locally
 
@@ -17,6 +17,8 @@ The API exposes:
 - `POST /api/game/actions`
 - `POST /api/game/reset`
 
-NPCs now have personal goals, richer schedules, memories, opinions, and relationships. Conversations, help, rumors, following, and time progression change trust and reputation. Hidden roles, investigations, meetings, and voting remain outside Phase 2.
+NPCs have personal goals, richer schedules, memories, opinions, and relationships. Conversations, help, rumors, following, and time progression change trust and reputation. Each reset privately assigns the player and NPCs extensible roles such as Innocent, Impostor, Detective, Guardian, or Jester. The player can see their own role objective and ability, while NPC roles and objectives remain server-side.
+
+Role abilities provide the first role-specific behaviors without adding the investigation, meeting, voting, or elimination systems reserved for later phases. Completing the private objective ends the current role challenge; reset starts a new assignment.
 
 The prototype keeps one in-memory simulation on the server, so resetting the game resets the shared session. Persistence and multi-player state are intentionally deferred.

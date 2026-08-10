@@ -574,7 +574,7 @@ class SocialState {
     }
   }
 
-  getConversation(npcId, period, { approach = 'friendly', now } = {}) {
+  getConversation(npcId, period, { approach = 'friendly', now, roleContext } = {}) {
     const npc = this.world.getNpc(npcId);
     if (!npc) {
       return null;
@@ -621,6 +621,10 @@ class SocialState {
       if (companionNames) {
         lines.push(`I am meant to be catching up with ${companionNames} soon, although plans keep changing.`);
       }
+    }
+
+    if (roleContext && typeof roleContext.conversationLine === 'string') {
+      lines.push(roleContext.conversationLine);
     }
 
     lines.push(...(npc.dialogue || []));

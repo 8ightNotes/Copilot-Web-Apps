@@ -65,6 +65,12 @@ const ACTION_DEFINITIONS = Object.freeze([
     description: 'Let the world move around you.',
     duration: 30,
   },
+  {
+    id: 'role_action',
+    label: 'Use role ability',
+    description: 'Take a private action shaped by your role.',
+    duration: 15,
+  },
 ]);
 
 const LOCATION_IDS = Object.freeze({

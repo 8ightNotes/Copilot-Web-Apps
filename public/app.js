@@ -12,6 +12,10 @@ const typeLabels = {
   observation: 'Observation',
   schedule: 'Schedule',
   goal_progress: 'Goal progress',
+  role_assignment: 'Private role',
+  role_progress: 'Role objective',
+  role_action: 'Role ability',
+  victory: 'Victory',
   reaction: 'Social reaction',
   rumor: 'Rumor',
   social_event: 'Social event',
@@ -141,6 +145,7 @@ function render() {
 
   renderNearbyPeople();
   renderNeighborhoodMap();
+  renderRolePanel();
   renderActions();
   renderSocialDashboard();
   renderEventLog();
@@ -155,6 +160,36 @@ function describeScene() {
 
   const people = nearby.map((npc) => `${npc.name} is ${npc.activity}`).join('. ');
   return `${location.description} ${people}.`;
+}
+
+function renderRolePanel() {
+  const role = app.state.player.role;
+  const outcome = app.state.outcome || { status: 'active' };
+  if (!role) {
+    return;
+  }
+
+  document.querySelector('#role-heading').textContent = role.name;
+  document.querySelector('#role-faction').textContent = role.faction;
+  document.querySelector('#role-summary').textContent = role.summary;
+  document.querySelector('#role-objective-label').textContent = role.objective
+    ? role.objective.label
+    : 'Objective';
+  document.querySelector('#role-objective-progress').textContent = role.objective
+    ? `${role.objective.progress}/${role.objective.threshold}`
+    : '—';
+  document.querySelector('#role-objective-description').textContent = role.objective
+    ? role.objective.description
+    : role.victory;
+
+  const outcomeLabel = document.querySelector('#role-outcome');
+  if (outcome.status === 'won') {
+    outcomeLabel.textContent = `Challenge complete: ${outcome.reason}`;
+  } else if (outcome.status === 'lost') {
+    outcomeLabel.textContent = `Challenge ended: ${outcome.reason}`;
+  } else {
+    outcomeLabel.textContent = `Ability: ${role.ability.label} · ${role.ability.description}`;
+  }
 }
 
 function renderNearbyPeople() {
@@ -216,6 +251,43 @@ function renderActions() {
   }
 
   const nearbyIds = new Set(app.state.nearbyNpcs.map((npc) => npc.id));
+  const role = app.state.player.role;
+  if (role && role.ability) {
+    const roleGroup = createActionGroup('Private role');
+    const roleActions = createElement('div', 'action-list');
+    if (role.ability.requiresTarget) {
+      if (app.state.nearbyNpcs.length === 0) {
+        roleActions.append(actionButton(
+          role.ability.label,
+          'role_action',
+          {},
+          true,
+          'Need someone nearby',
+        ));
+      } else {
+        for (const npc of app.state.nearbyNpcs) {
+          roleActions.append(actionButton(
+            `${role.ability.label} · ${npc.name}`,
+            'role_action',
+            { targetId: npc.id },
+            false,
+            `${role.ability.duration} min`,
+          ));
+        }
+      }
+    } else {
+      roleActions.append(actionButton(
+        role.ability.label,
+        'role_action',
+        {},
+        false,
+        `${role.ability.duration} min`,
+      ));
+    }
+    roleGroup.append(roleActions);
+    groups.append(roleGroup);
+  }
+
   const peopleGroup = createActionGroup('People');
   const peopleActions = createElement('div', 'action-list');
 
@@ -388,7 +460,10 @@ function actionButton(label, action, data, disabled, detail) {
   if (data.approach) {
     button.dataset.approach = data.approach;
   }
-  button.disabled = disabled || app.busy;
+  const challengeComplete = app.state
+    && app.state.outcome
+    && app.state.outcome.status !== 'active';
+  button.disabled = disabled || app.busy || challengeComplete;
   button.append(
     createElement('span', '', label),
     createElement('span', 'button-detail', detail),
