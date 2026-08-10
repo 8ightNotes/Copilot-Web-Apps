@@ -94,10 +94,6 @@ class GameEngine {
       eventLog: this.events.slice(-MAX_EVENT_LOG_LENGTH),
       notice: this.notice,
       social,
-      reputation: social.reputation,
-      relationships: social.relationships,
-      memories: social.memories,
-      rumors: social.rumors,
     };
   }
 

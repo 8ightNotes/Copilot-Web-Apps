@@ -133,7 +133,7 @@ function render() {
   document.querySelector('#location-label').textContent = player.location.shortName;
   document.querySelector('#turn-label').textContent = String(app.state.turn);
   document.querySelector('#period-label').textContent = time.period;
-  document.querySelector('#reputation-label').textContent = `${app.state.reputation.score} · ${app.state.reputation.label}`;
+  document.querySelector('#reputation-label').textContent = `${app.state.social.reputation.score} · ${app.state.social.reputation.label}`;
   document.querySelector('#scene-heading').textContent = player.location.name;
   document.querySelector('#scene-description').textContent = describeScene();
   document.querySelector('#nearby-count').textContent = String(app.state.nearbyNpcs.length);
@@ -250,7 +250,7 @@ function renderActions() {
       !nearbyIds.has(npc.id),
       '10 min',
     );
-    const shareRumor = app.state.rumors && app.state.rumors[0];
+    const shareRumor = app.state.social.rumors && app.state.social.rumors[0];
     const shareRumorButton = actionButton(
       `Share a rumor with ${npc.name}`,
       'share_rumor',

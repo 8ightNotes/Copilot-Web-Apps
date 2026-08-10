@@ -771,7 +771,7 @@ class SocialState {
         witness.id,
         'player',
         changes,
-        `They witnessed your ${actionId.replace('_', ' ')}.`,
+        `They witnessed your ${actionId.replace(/_/g, ' ')}.`,
         now,
       );
       this.addMemory(
