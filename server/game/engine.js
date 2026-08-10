@@ -24,15 +24,30 @@ function minutesToClock(minutes) {
 }
 
 class GameEngine {
-  constructor() {
+  constructor(options = {}) {
+    this.seed = options.seed;
+    this.roleAssignments = options.roleAssignments;
+    this.roleRandom = options.roleRandom;
     this.reset();
   }
 
-  reset() {
+  reset(options = {}) {
+    if (Object.prototype.hasOwnProperty.call(options, 'seed')) {
+      this.seed = options.seed;
+    }
+    if (Object.prototype.hasOwnProperty.call(options, 'roleAssignments')) {
+      this.roleAssignments = options.roleAssignments;
+    }
+
     this.time = new SimulationTime(DEFAULT_START_DAY, DEFAULT_START_MINUTE);
     this.world = new World(DEFAULT_START_MINUTE);
     this.social = new SocialState(this.world);
-    this.roles = new RoleState(this.world);
+    this.roles = new RoleState(this.world, {
+      seed: this.seed,
+      random: this.roleRandom,
+      assignments: this.roleAssignments,
+      startTime: this.time.toJSON(),
+    });
     this.player = {
       ...PLAYER,
       locationId: PLAYER.startLocationId,
@@ -40,7 +55,7 @@ class GameEngine {
     this.events = [];
     this.nextEventId = 1;
     this.turn = 0;
-    this.notice = `You have been assigned the private role of ${this.roles.getPlayerView(this.player.id).name}.`;
+    this.notice = 'A private role has been assigned to you.';
 
     this.addEvent(
       'day_start',
@@ -48,7 +63,7 @@ class GameEngine {
     );
     this.addEvent(
       'role_assignment',
-      `Your private role is ${this.roles.getPlayerView(this.player.id).name}. ${this.roles.getPlayerView(this.player.id).summary}`,
+      'A private role and objective have been assigned to you.',
     );
     this.addEvent(
       'observation',
@@ -60,6 +75,16 @@ class GameEngine {
     const currentLocation = this.world.getLocation(this.player.locationId);
     const nearbyNpcs = this.world.getNpcsAt(this.player.locationId);
     const social = this.social.getPublicState(this.player.id);
+    const playerRole = this.roles.getPlayerView(this.player.id);
+    const publicActions = ACTION_DEFINITIONS.map((action) => action.id === 'role_action'
+      ? {
+        ...action,
+        label: playerRole.ability.label,
+        description: playerRole.ability.description,
+        duration: playerRole.ability.duration,
+        requiresTarget: playerRole.ability.requiresTarget,
+      }
+      : action);
     const publicNpcs = this.world.getPublicNpcs().map((npc) => ({
       ...npc,
       relationship: this.social.getPublicRelationship(this.player.id, npc.id),
@@ -91,13 +116,13 @@ class GameEngine {
         id: this.player.id,
         name: this.player.name,
         locationId: this.player.locationId,
-        location: currentLocation,
-        role: this.roles.getPlayerView(this.player.id),
+        location: currentLocation ? { ...currentLocation } : null,
+        role: playerRole,
       },
       locations: this.world.getPublicLocations(),
       npcs: publicNpcs,
       nearbyNpcs: publicNearbyNpcs,
-      actions: ACTION_DEFINITIONS,
+      actions: publicActions,
       eventLog: this.events.slice(-MAX_EVENT_LOG_LENGTH),
       notice: this.notice,
       social,
@@ -543,7 +568,6 @@ class GameEngine {
           now,
           this.player.id,
         );
-        this.recordSocialReactions('follow', target.id, now);
         text = `You say something provocative to ${target.name} and watch the mood shift.`;
         break;
       case 'innocent':
@@ -830,8 +854,19 @@ class GameEngine {
           });
         }
       });
-
       remaining -= step;
+    }
+
+    const deadline = this.roles.evaluateDeadline(this.getNow(), {
+      reputationScore: this.social.reputation.score,
+    });
+    if (deadline) {
+      this.addEvent(
+        deadline.outcome.status === 'won' ? 'victory' : 'role_failure',
+        deadline.outcome.reason,
+        { objective: deadline.objective },
+      );
+      this.notice = deadline.outcome.reason;
     }
 
     this.turn += 1;

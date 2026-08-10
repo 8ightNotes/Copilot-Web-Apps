@@ -1,4 +1,5 @@
 const { randomInt } = require('node:crypto');
+const { MINUTES_PER_DAY } = require('./constants');
 const { formatClock } = require('./time');
 
 const ROLE_IDS = Object.freeze({
@@ -44,6 +45,10 @@ const ROLE_DEFINITIONS = Object.freeze({
       wait: 1,
       role_action: 1,
     }),
+    deadline: Object.freeze({
+      survive: true,
+      successReason: 'You remained a steady part of the community for the full role challenge.',
+    }),
     behaviorLine: 'I am trying to keep the day ordinary, even when everyone seems distracted.',
   }),
   [ROLE_IDS.IMPOSTOR]: Object.freeze({
@@ -73,6 +78,11 @@ const ROLE_DEFINITIONS = Object.freeze({
       follow: 1,
       role_action: 1,
     }),
+    deadline: Object.freeze({
+      minimumProgress: 3,
+      minimumReputation: 35,
+      successReason: 'You maintained a believable routine until the role challenge ended.',
+    }),
     behaviorLine: 'Routine matters. People notice when someone suddenly stops showing up.',
   }),
   [ROLE_IDS.DETECTIVE]: Object.freeze({
@@ -100,6 +110,10 @@ const ROLE_DEFINITIONS = Object.freeze({
       ask_rumor: 1,
       role_action: 1,
     }),
+    deadline: Object.freeze({
+      minimumProgress: 2,
+      successReason: 'You built a useful picture of the neighborhood before the role challenge ended.',
+    }),
     behaviorLine: 'I have been keeping track of the details people tend to skip over.',
   }),
   [ROLE_IDS.GUARDIAN]: Object.freeze({
@@ -125,6 +139,10 @@ const ROLE_DEFINITIONS = Object.freeze({
       help: 1,
       follow: 1,
       role_action: 1,
+    }),
+    deadline: Object.freeze({
+      minimumProgress: 1,
+      successReason: 'You built a circle of support before the role challenge ended.',
     }),
     behaviorLine: 'I try to make sure nobody gets left alone with a problem they cannot solve.',
   }),
@@ -152,6 +170,10 @@ const ROLE_DEFINITIONS = Object.freeze({
       ask_rumor: 1,
       share_rumor: 1,
       role_action: 1,
+    }),
+    deadline: Object.freeze({
+      minimumProgress: 2,
+      successReason: 'You made yourself impossible to ignore before the role challenge ended.',
     }),
     behaviorLine: 'Sometimes the fastest way to learn what people believe is to say something unexpected.',
   }),
@@ -192,6 +214,25 @@ function shuffle(values, random = randomInt) {
   return shuffled;
 }
 
+function createSeededRandom(seed) {
+  let state = 0;
+  const seedText = String(seed);
+
+  for (let index = 0; index < seedText.length; index += 1) {
+    state = (Math.imul(state, 31) + seedText.charCodeAt(index)) | 0;
+  }
+  if (state === 0) {
+    state = 0x6d2b79f5;
+  }
+
+  return (maximum) => {
+    state = (Math.imul(state ^ (state >>> 15), 1 | state) + 0x6d2b79f5) | 0;
+    state = Math.imul(state ^ (state >>> 7), 61 | state) ^ state;
+    const normalized = (state ^ (state >>> 14)) >>> 0;
+    return maximum > 0 ? normalized % maximum : 0;
+  };
+}
+
 function createObjective(definition) {
   return {
     id: definition.objective.id,
@@ -221,10 +262,25 @@ function publicObjective(objective) {
 class RoleState {
   constructor(world, options = {}) {
     this.world = world;
-    this.random = typeof options.random === 'function' ? options.random : randomInt;
-    this.roleIds = Array.isArray(options.roleIds) && options.roleIds.length > 0
+    this.random = typeof options.random === 'function'
+      ? options.random
+      : options.seed !== undefined
+        ? createSeededRandom(options.seed)
+        : randomInt;
+    const configuredRoleIds = Array.isArray(options.roleIds)
       ? options.roleIds.filter((roleId) => ROLE_DEFINITIONS[roleId])
+      : [];
+    this.roleIds = configuredRoleIds.length > 0
+      ? configuredRoleIds
       : ROLE_ORDER;
+    this.trialDurationMinutes = Number.isInteger(options.trialDurationMinutes)
+      && options.trialDurationMinutes > 0
+      ? options.trialDurationMinutes
+      : MINUTES_PER_DAY;
+    this.trialStart = makeTimestamp(options.startTime);
+    this.trialDeadline = this.getTimestampAt(
+      this.toAbsoluteMinute(this.trialStart) + this.trialDurationMinutes,
+    );
     this.assignments = new Map();
     this.objectives = new Map();
     this.guardianTargets = new Map();
@@ -308,11 +364,20 @@ class RoleState {
       objective: objective ? publicObjective(objective) : null,
       victory: definition.victory,
       ability: clone(definition.ability),
+      trial: {
+        durationMinutes: this.trialDurationMinutes,
+        deadline: { ...this.trialDeadline },
+      },
     };
   }
 
   getPublicOutcome() {
-    return { ...this.outcome };
+    const objective = this.getObjective('player');
+    return {
+      ...this.outcome,
+      youWon: this.outcome.status === 'won',
+      objectiveStatus: objective ? objective.status : 'active',
+    };
   }
 
   getNpcBehavior(npcId) {
@@ -383,6 +448,61 @@ class RoleState {
     }
   }
 
+  evaluateDeadline(now, context = {}) {
+    if (this.outcome.status !== 'active') {
+      return null;
+    }
+
+    const timestamp = makeTimestamp(now);
+    if (this.toAbsoluteMinute(timestamp) < this.toAbsoluteMinute(this.trialDeadline)) {
+      return null;
+    }
+
+    const characterId = 'player';
+    const definition = this.getDefinition(characterId);
+    const objective = this.getObjective(characterId);
+    const deadline = definition.deadline || {};
+    const reputationScore = Number.isFinite(context.reputationScore)
+      ? context.reputationScore
+      : null;
+    const succeeded = Boolean(deadline.survive)
+      || (
+        objective.progress >= (deadline.minimumProgress || objective.threshold)
+        && (
+          deadline.minimumReputation === undefined
+          || (reputationScore !== null && reputationScore >= deadline.minimumReputation)
+        )
+      );
+
+    if (succeeded) {
+      objective.progress = objective.threshold;
+      objective.status = 'complete';
+      objective.lastChange = deadline.successReason || definition.victory;
+      objective.lastUpdate = timestamp;
+      this.outcome = {
+        status: 'won',
+        reason: deadline.successReason || definition.victory,
+        day: timestamp.day,
+        clock: timestamp.clock,
+      };
+    } else {
+      objective.status = 'failed';
+      objective.lastChange = 'The role challenge ended before the objective was complete.';
+      objective.lastUpdate = timestamp;
+      this.outcome = {
+        status: 'lost',
+        reason: 'The role challenge ended before you fulfilled your private objective.',
+        day: timestamp.day,
+        clock: timestamp.clock,
+      };
+    }
+
+    return {
+      outcome: this.getPublicOutcome(),
+      objective: publicObjective(objective),
+    };
+  }
+
   advanceObjective(characterId, amount, reason, now) {
     const objective = this.getObjective(characterId);
     if (!objective || objective.status === 'complete' || !Number.isInteger(amount) || amount <= 0) {
@@ -421,6 +541,17 @@ class RoleState {
     const actionLabel = actionId.replace(/_/g, ' ');
     return `${definition.name} objective advanced through ${actionLabel}.`;
   }
+
+  toAbsoluteMinute(timestamp) {
+    return timestamp.day * MINUTES_PER_DAY + timestamp.minuteOfDay;
+  }
+
+  getTimestampAt(absoluteMinute) {
+    return makeTimestamp({
+      day: Math.floor(absoluteMinute / MINUTES_PER_DAY),
+      minuteOfDay: absoluteMinute % MINUTES_PER_DAY,
+    });
+  }
 }
 
 module.exports = {
@@ -428,6 +559,7 @@ module.exports = {
   ROLE_IDS,
   ROLE_ORDER,
   RoleState,
+  createSeededRandom,
   makeTimestamp,
   shuffle,
 };

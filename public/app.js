@@ -15,6 +15,7 @@ const typeLabels = {
   role_assignment: 'Private role',
   role_progress: 'Role objective',
   role_action: 'Role ability',
+  role_failure: 'Role challenge ended',
   victory: 'Victory',
   reaction: 'Social reaction',
   rumor: 'Rumor',
