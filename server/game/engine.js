@@ -259,7 +259,7 @@ class GameEngine {
     const goalResult = this.social.advanceGoal(
       npc.id,
       1,
-      `You offered help with ${npc.goal ? npc.goal.label : 'the day’s work'}.`,
+      `You offered help with ${npc.goal ? npc.goal.label : 'the current work'}.`,
       now,
     );
     const madeProgress = goalResult && goalResult.progressMade > 0;
@@ -294,7 +294,7 @@ class GameEngine {
     const goalText = goalResult && goalResult.completed
       ? `${npc.name} has finished the goal they were working toward.`
       : goalResult && madeProgress
-      ? `${npc.name} made progress on ${npc.goal?.label || 'the day’s work'}.`
+        ? `${npc.name} made progress on ${npc.goal?.label || 'the current work'}.`
         : `${npc.name} appreciates the offer, even though they have already made progress on that goal.`;
     const memoryText = `You helped ${npc.name}. ${goalText}`;
     this.social.addMemory(npc.id, this.player.id, 'help', memoryText, 3, now, this.player.id);
@@ -459,6 +459,9 @@ class GameEngine {
     const target = ability.requiresTarget
       ? this.requireNpcAtCurrentLocation(targetId)
       : null;
+    if (ability.requiresTarget && !target) {
+      throw new GameValidationError('This role ability needs someone nearby.', 'TARGET_REQUIRED');
+    }
     let text;
 
     switch (roleId) {
@@ -571,7 +574,6 @@ class GameEngine {
         text = `You say something provocative to ${target.name} and watch the mood shift.`;
         break;
       case ROLE_IDS.INNOCENT:
-      default:
         this.social.adjustReputation(
           { kindness: 1, trustworthiness: 1, discretion: 1, suspicion: -1 },
           'You reinforced your ordinary routine.',
@@ -588,6 +590,11 @@ class GameEngine {
         );
         text = 'You take a deliberate moment to keep your day grounded.';
         break;
+      default:
+        throw new GameValidationError(
+          'Your assigned role does not have an available ability.',
+          'ROLE_CONFIGURATION_ERROR',
+        );
     }
 
     const progress = this.roles.recordRoleAbility(this.player.id, target && target.id, now);

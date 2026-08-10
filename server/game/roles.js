@@ -2,6 +2,8 @@ const { randomInt } = require('node:crypto');
 const { MINUTES_PER_DAY } = require('./constants');
 const { formatClock } = require('./time');
 
+const SEEDED_RANDOM_CONSTANT = 0x6d2b79f5;
+
 const ROLE_IDS = Object.freeze({
   INNOCENT: 'innocent',
   IMPOSTOR: 'impostor',
@@ -222,11 +224,11 @@ function createSeededRandom(seed) {
     state = (Math.imul(state, 31) + seedText.charCodeAt(index)) | 0;
   }
   if (state === 0) {
-    state = 0x6d2b79f5;
+    state = SEEDED_RANDOM_CONSTANT;
   }
 
   return (maximum) => {
-    state = (Math.imul(state ^ (state >>> 15), 1 | state) + 0x6d2b79f5) | 0;
+    state = (Math.imul(state ^ (state >>> 15), 1 | state) + SEEDED_RANDOM_CONSTANT) | 0;
     state = Math.imul(state ^ (state >>> 7), 61 | state) ^ state;
     const normalized = (state ^ (state >>> 14)) >>> 0;
     return maximum > 0 ? normalized % maximum : 0;
