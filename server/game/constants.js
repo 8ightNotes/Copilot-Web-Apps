@@ -2,12 +2,39 @@ const MINUTES_PER_DAY = 24 * 60;
 const DEFAULT_START_DAY = 1;
 const DEFAULT_START_MINUTE = 8 * 60;
 const MAX_EVENT_LOG_LENGTH = 100;
+const MAX_MEMORY_COUNT = 40;
+const MAX_RUMOR_COUNT = 30;
+const MAX_RELATIONSHIP_HISTORY = 12;
+const MAX_REPUTATION_HISTORY = 12;
+const SOCIAL_VALUE_MIN = 0;
+const SOCIAL_VALUE_MAX = 100;
 
 const ACTION_DEFINITIONS = Object.freeze([
   {
     id: 'talk',
     label: 'Talk',
-    description: 'Have a short conversation with someone here.',
+    description: 'Have a short conversation and learn what is on someone’s mind.',
+    duration: 15,
+    requiresTarget: true,
+  },
+  {
+    id: 'help',
+    label: 'Offer help',
+    description: 'Help someone make progress on a personal goal.',
+    duration: 20,
+    requiresTarget: true,
+  },
+  {
+    id: 'ask_rumor',
+    label: 'Ask what they have heard',
+    description: 'Ask someone nearby about the latest talk in the neighborhood.',
+    duration: 10,
+    requiresTarget: true,
+  },
+  {
+    id: 'share_rumor',
+    label: 'Share a rumor',
+    description: 'Pass along something you have heard and live with the consequences.',
     duration: 15,
     requiresTarget: true,
   },
@@ -52,7 +79,13 @@ module.exports = {
   ACTION_DEFINITIONS,
   DEFAULT_START_DAY,
   DEFAULT_START_MINUTE,
+  MAX_MEMORY_COUNT,
   LOCATION_IDS,
   MAX_EVENT_LOG_LENGTH,
+  MAX_RELATIONSHIP_HISTORY,
+  MAX_REPUTATION_HISTORY,
+  MAX_RUMOR_COUNT,
   MINUTES_PER_DAY,
+  SOCIAL_VALUE_MAX,
+  SOCIAL_VALUE_MIN,
 };

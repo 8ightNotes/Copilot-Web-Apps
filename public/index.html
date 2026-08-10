@@ -17,7 +17,7 @@
         </div>
         <div class="phase-mark" aria-label="Current development phase">
           <span>PHASE</span>
-          <strong>01</strong>
+          <strong>02</strong>
         </div>
       </header>
 
@@ -33,6 +33,10 @@
         <div class="status-item">
           <span class="status-label">Turn</span>
           <strong id="turn-label">—</strong>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Reputation</span>
+          <strong id="reputation-label">Loading…</strong>
         </div>
       </section>
 
@@ -76,6 +80,36 @@
           <button id="reset-button" class="reset-button" type="button">Begin a new day</button>
         </aside>
 
+        <section class="card social-card" aria-labelledby="social-heading">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">The social fabric</p>
+              <h2 id="social-heading">What people remember</h2>
+            </div>
+            <span class="muted-label">Trust changes over time</span>
+          </div>
+          <div class="social-grid">
+            <section class="social-section" aria-labelledby="relationships-heading">
+              <div class="section-heading">
+                <h3 id="relationships-heading">Relationships</h3>
+              </div>
+              <ul id="relationships-list" class="social-list"></ul>
+            </section>
+            <section class="social-section" aria-labelledby="memories-heading">
+              <div class="section-heading">
+                <h3 id="memories-heading">Your memories</h3>
+              </div>
+              <ul id="memory-list" class="social-list"></ul>
+            </section>
+            <section class="social-section" aria-labelledby="rumors-heading">
+              <div class="section-heading">
+                <h3 id="rumors-heading">Rumors in circulation</h3>
+              </div>
+              <ul id="rumor-list" class="social-list"></ul>
+            </section>
+          </div>
+        </section>
+
         <section class="card log-card" aria-labelledby="log-heading">
           <div class="card-heading">
             <div>
@@ -89,7 +123,7 @@
       </main>
 
       <footer class="site-footer">
-        <span>Phase 1 · Foundational text simulation</span>
+        <span>Phase 2 · Social simulation</span>
         <span>Observe carefully. The world keeps moving.</span>
       </footer>
     </div>

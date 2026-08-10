@@ -11,6 +11,10 @@ const typeLabels = {
   npc_movement: 'World movement',
   observation: 'Observation',
   schedule: 'Schedule',
+  goal_progress: 'Goal progress',
+  reaction: 'Social reaction',
+  rumor: 'Rumor',
+  social_event: 'Social event',
   waiting: 'Waiting',
 };
 
@@ -44,6 +48,12 @@ async function handleActionClick(event) {
   }
   if (button.dataset.locationId) {
     payload.locationId = button.dataset.locationId;
+  }
+  if (button.dataset.rumorId) {
+    payload.rumorId = button.dataset.rumorId;
+  }
+  if (button.dataset.approach) {
+    payload.approach = button.dataset.approach;
   }
 
   await submitAction(payload);
@@ -123,6 +133,7 @@ function render() {
   document.querySelector('#location-label').textContent = player.location.shortName;
   document.querySelector('#turn-label').textContent = String(app.state.turn);
   document.querySelector('#period-label').textContent = time.period;
+  document.querySelector('#reputation-label').textContent = `${app.state.reputation.score} · ${app.state.reputation.label}`;
   document.querySelector('#scene-heading').textContent = player.location.name;
   document.querySelector('#scene-description').textContent = describeScene();
   document.querySelector('#nearby-count').textContent = String(app.state.nearbyNpcs.length);
@@ -131,6 +142,7 @@ function render() {
   renderNearbyPeople();
   renderNeighborhoodMap();
   renderActions();
+  renderSocialDashboard();
   renderEventLog();
 }
 
@@ -159,7 +171,19 @@ function renderNearbyPeople() {
     const name = createElement('strong', '', npc.name);
     const details = createElement('span', '', `${npc.age} · ${npc.occupation}`);
     const activity = createElement('span', 'activity', capitalize(npc.activity));
+    const relationship = npc.relationship
+      ? createElement('span', 'relationship', `${npc.relationship.label} · Trust ${npc.relationship.trust}/100`)
+      : null;
+    const goal = npc.goal && npc.goal.status === 'active'
+      ? createElement('span', 'goal', `${npc.goal.label} · ${npc.goal.progress}/${npc.goal.threshold}`)
+      : null;
     item.append(name, details, activity);
+    if (relationship) {
+      item.append(relationship);
+    }
+    if (goal) {
+      item.append(goal);
+    }
     list.append(item);
   }
 }
@@ -197,11 +221,13 @@ function renderActions() {
 
   for (const npc of app.state.npcs) {
     const talkButton = actionButton(
-      `${nearbyIds.has(npc.id) ? 'Talk' : 'Talk to'} ${npc.name}`,
+      `${nearbyIds.has(npc.id) ? 'Talk with' : 'Talk to'} ${npc.name}`,
       'talk',
       { targetId: npc.id },
       !nearbyIds.has(npc.id),
-      nearbyIds.has(npc.id) ? '15 min' : locationName(npc.locationId),
+      nearbyIds.has(npc.id)
+        ? `${npc.relationship ? npc.relationship.label : '15 min'}`
+        : locationName(npc.locationId),
     );
     const followButton = actionButton(
       `Follow ${npc.name}`,
@@ -210,7 +236,35 @@ function renderActions() {
       false,
       locationName(npc.locationId),
     );
-    peopleActions.append(talkButton, followButton);
+    const helpButton = actionButton(
+      `Help ${npc.name}`,
+      'help',
+      { targetId: npc.id },
+      !nearbyIds.has(npc.id) || !npc.goal || npc.goal.status === 'complete',
+      npc.goal && npc.goal.status === 'complete' ? 'Goal complete' : '20 min',
+    );
+    const askRumorButton = actionButton(
+      `Ask ${npc.name} what they heard`,
+      'ask_rumor',
+      { targetId: npc.id },
+      !nearbyIds.has(npc.id),
+      '10 min',
+    );
+    const shareRumor = app.state.rumors && app.state.rumors[0];
+    const shareRumorButton = actionButton(
+      `Share a rumor with ${npc.name}`,
+      'share_rumor',
+      { targetId: npc.id, rumorId: shareRumor ? shareRumor.id : '' },
+      !nearbyIds.has(npc.id) || !shareRumor,
+      shareRumor ? '15 min' : 'Nothing to share',
+    );
+    peopleActions.append(
+      talkButton,
+      helpButton,
+      askRumorButton,
+      shareRumorButton,
+      followButton,
+    );
   }
   peopleGroup.append(peopleActions);
   groups.append(peopleGroup);
@@ -256,6 +310,62 @@ function renderEventLog() {
   }
 }
 
+function renderSocialDashboard() {
+  const social = app.state.social || {
+    relationships: [],
+    memories: [],
+    rumors: [],
+  };
+  const relationships = document.querySelector('#relationships-list');
+  const memories = document.querySelector('#memory-list');
+  const rumors = document.querySelector('#rumor-list');
+  relationships.replaceChildren();
+  memories.replaceChildren();
+  rumors.replaceChildren();
+
+  if (social.relationships.length === 0) {
+    relationships.append(createElement('li', 'empty-copy', 'No relationships have formed yet.'));
+  } else {
+    for (const relationship of social.relationships) {
+      const item = createElement('li', 'social-item');
+      item.append(
+        createElement('strong', '', `${relationship.name} · ${relationship.npcView.label}`),
+        createElement('span', '', `Trust ${relationship.npcView.trust}/100 · Suspicion ${relationship.npcView.suspicion}/100`),
+        createElement('span', 'social-note', relationship.opinion.summary),
+      );
+      relationships.append(item);
+    }
+  }
+
+  if (social.memories.length === 0) {
+    memories.append(createElement('li', 'empty-copy', 'Your memory is still a blank page.'));
+  } else {
+    for (const memory of social.memories.slice(0, 6)) {
+      const item = createElement('li', 'social-item');
+      item.append(
+        createElement('strong', '', memory.subjectName),
+        createElement('span', '', memory.text),
+        createElement('span', 'social-note', `Day ${memory.day} · ${memory.clock} · ${Math.round(memory.confidence * 100)}% confidence`),
+      );
+      memories.append(item);
+    }
+  }
+
+  if (social.rumors.length === 0) {
+    rumors.append(createElement('li', 'empty-copy', 'No rumors have reached you yet.'));
+  } else {
+    for (const rumor of social.rumors.slice(0, 6)) {
+      const item = createElement('li', 'social-item');
+      item.append(
+        createElement('strong', '', `${rumor.subjectName} · ${rumor.credibilityLabel}`),
+        createElement('span', '', rumor.text),
+        createElement('span', 'social-note', `Heard from ${rumor.sourceName} · Spread ${rumor.spreadCount} ${rumor.spreadCount === 1 ? 'time' : 'times'}`),
+      );
+      rumors.append(item);
+    }
+  }
+}
+
 function createActionGroup(title) {
   const group = createElement('section', 'action-group');
   group.append(createElement('h3', '', title));
@@ -271,6 +381,12 @@ function actionButton(label, action, data, disabled, detail) {
   }
   if (data.locationId) {
     button.dataset.locationId = data.locationId;
+  }
+  if (data.rumorId) {
+    button.dataset.rumorId = data.rumorId;
+  }
+  if (data.approach) {
+    button.dataset.approach = data.approach;
   }
   button.disabled = disabled || app.busy;
   button.append(

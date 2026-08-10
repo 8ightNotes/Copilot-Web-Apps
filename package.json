@@ -1,7 +1,7 @@
 {
   "name": "copilot-web-apps",
   "version": "1.0.0",
-  "description": "A Text Impostor - Phase 1 text simulation",
+  "description": "A Text Impostor - Phase 2 social simulation",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",

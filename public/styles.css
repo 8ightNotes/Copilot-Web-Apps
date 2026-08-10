@@ -185,6 +185,22 @@ h3 {
   grid-column: 1 / -1;
 }
 
+.social-card {
+  grid-column: 1 / -1;
+  padding: 1.35rem;
+}
+
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.social-section {
+  min-width: 0;
+}
+
 .period-badge,
 .count-badge {
   display: inline-flex;
@@ -273,11 +289,59 @@ h3 {
   color: var(--mint);
 }
 
+.person-card .relationship,
+.person-card .goal {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--accent);
+  font-size: 0.72rem;
+}
+
+.person-card .goal {
+  color: var(--muted);
+}
+
 .empty-copy {
   margin: 0;
   padding: 0.8rem;
   border: 1px dashed var(--border-strong);
   border-radius: 0.7rem;
+}
+
+.social-list {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.social-item {
+  display: grid;
+  gap: 0.25rem;
+  min-height: 4.4rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background: rgba(13, 23, 25, 0.25);
+}
+
+.social-item strong {
+  color: var(--text);
+  font-size: 0.84rem;
+}
+
+.social-item span {
+  color: #c7d8d0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.social-item .social-note {
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.68rem;
 }
 
 .location-grid {
@@ -484,6 +548,10 @@ h3 {
   .game-layout {
     display: flex;
     flex-direction: column;
+  }
+
+  .social-grid {
+    grid-template-columns: 1fr;
   }
 
   .actions-card {
