@@ -314,17 +314,18 @@ class RoleState {
     }
 
     const missingCharacters = characterIds.filter((characterId) => !this.assignments.has(characterId));
-    const availableRoles = characterIds.length <= this.roleIds.length
-      ? this.roleIds.slice(0, characterIds.length)
-      : [
-        ...this.roleIds,
-        ...Array(characterIds.length - this.roleIds.length).fill(ROLE_IDS.INNOCENT),
-      ];
-    const assignedRoles = new Set(this.assignments.values());
-    const rolesToAssign = shuffle(
-      availableRoles.filter((roleId) => !assignedRoles.has(roleId)),
-      this.random,
-    );
+    const availableRoles = [
+      ...this.roleIds.slice(0, characterIds.length),
+      ...Array(Math.max(0, characterIds.length - this.roleIds.length)).fill(ROLE_IDS.INNOCENT),
+    ];
+    for (const characterId of characterIds) {
+      const assignedRole = this.assignments.get(characterId);
+      const roleIndex = availableRoles.indexOf(assignedRole);
+      if (roleIndex >= 0) {
+        availableRoles.splice(roleIndex, 1);
+      }
+    }
+    const rolesToAssign = shuffle(availableRoles, this.random);
 
     for (const characterId of missingCharacters) {
       const roleId = rolesToAssign.shift() || ROLE_IDS.INNOCENT;

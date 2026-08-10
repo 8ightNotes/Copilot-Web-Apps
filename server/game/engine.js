@@ -7,7 +7,7 @@ const {
   MINUTES_PER_DAY,
 } = require('./constants');
 const { GameValidationError } = require('./errors');
-const { RoleState } = require('./roles');
+const { ROLE_IDS, RoleState } = require('./roles');
 const { SocialState } = require('./social');
 const { SimulationTime, formatClock } = require('./time');
 const { World } = require('./world');
@@ -462,7 +462,7 @@ class GameEngine {
     let text;
 
     switch (roleId) {
-      case 'impostor':
+      case ROLE_IDS.IMPOSTOR:
         this.social.adjustRelationship(
           target.id,
           this.player.id,
@@ -493,7 +493,7 @@ class GameEngine {
         );
         text = `You spend time with ${target.name}, making the interaction feel like part of an ordinary day.`;
         break;
-      case 'detective': {
+      case ROLE_IDS.DETECTIVE: {
         const schedule = this.world.getScheduleSnapshot(this.time.minuteOfDay);
         const activePeople = schedule.filter((entry) => entry.current.locationId === this.player.locationId);
         this.social.addMemory(
@@ -508,7 +508,7 @@ class GameEngine {
         text = `You compare the day’s schedules and note ${activePeople.length} familiar ${activePeople.length === 1 ? 'face' : 'faces'} nearby.`;
         break;
       }
-      case 'guardian':
+      case ROLE_IDS.GUARDIAN:
         this.social.adjustRelationship(
           target.id,
           this.player.id,
@@ -539,7 +539,7 @@ class GameEngine {
         );
         text = `You stay attentive to ${target.name} and quietly offer your support.`;
         break;
-      case 'jester':
+      case ROLE_IDS.JESTER:
         this.social.adjustRelationship(
           target.id,
           this.player.id,
@@ -570,7 +570,7 @@ class GameEngine {
         );
         text = `You say something provocative to ${target.name} and watch the mood shift.`;
         break;
-      case 'innocent':
+      case ROLE_IDS.INNOCENT:
       default:
         this.social.adjustReputation(
           { kindness: 1, trustworthiness: 1, discretion: 1, suspicion: -1 },
