@@ -1,4 +1,5 @@
 const { LOCATION_IDS, MINUTES_PER_DAY } = require('./constants');
+const { generateNpcs } = require('./npc-generator');
 
 const LOCATIONS = [
   {
@@ -295,10 +296,13 @@ function findScheduleEntry(schedule, minuteOfDay) {
 }
 
 class World {
-  constructor(initialMinuteOfDay = 0) {
+  constructor(initialMinuteOfDay = 0, options = {}) {
     this.locations = clone(LOCATIONS);
+    const npcCount = options.npcCount || 4;
+    const seed = options.seed || Date.now();
+    const blueprints = options.blueprints || generateNpcs(npcCount, seed);
     this.npcs = new Map(
-      NPC_BLUEPRINTS.map((blueprint) => {
+      blueprints.map((blueprint) => {
         const initialEntry = findScheduleEntry(blueprint.schedule, initialMinuteOfDay);
         return [
           blueprint.id,

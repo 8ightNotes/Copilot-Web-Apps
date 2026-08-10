@@ -2,6 +2,8 @@ const app = {
   state: null,
   busy: false,
   message: '',
+  pendingTravel: null,
+  miniGameActive: false,
 };
 
 const typeLabels = {
@@ -46,6 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('#action-groups').addEventListener('click', handleActionClick);
   document.querySelector('#reset-button').addEventListener('click', resetGame);
 
+  // Travel confirmation
+  document.querySelector('#travel-confirm-yes').addEventListener('click', confirmTravel);
+  document.querySelector('#travel-confirm-no').addEventListener('click', () => { app.pendingTravel = null; closeModal('modal-travel'); });
+
   // Modal close buttons
   document.querySelectorAll('[data-close-modal]').forEach((btn) => {
     btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
@@ -70,6 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (openModalEl) closeModal(openModalEl.id);
     }
   });
+
+  // Map click delegation
+  document.querySelector('#neighborhood-map').addEventListener('click', handleMapClick);
 });
 
 /* ===== SCREEN NAVIGATION ===== */
@@ -114,6 +123,215 @@ function showToast(message, type = 'info') {
   toast.textContent = message;
   container.append(toast);
   setTimeout(() => toast.remove(), 3200);
+}
+
+/* ===== MAP CLICK -> TRAVEL ===== */
+function handleMapClick(event) {
+  const tile = event.target.closest('.location-tile.clickable');
+  if (!tile || app.busy) return;
+
+  const locationId = tile.dataset.locationId;
+  const locationName = tile.dataset.locationName;
+  app.pendingTravel = locationId;
+  document.querySelector('#travel-confirm-text').textContent = `Travel to ${locationName}? (30 min)`;
+  closeModal('modal-map');
+  openModal('modal-travel');
+}
+
+async function confirmTravel() {
+  if (!app.pendingTravel) return;
+  closeModal('modal-travel');
+  await submitAction({ action: 'go', locationId: app.pendingTravel });
+  app.pendingTravel = null;
+}
+
+/* ===== MINI-GAMES ===== */
+function showMiniGame(miniGame) {
+  if (!miniGame) return;
+  app.miniGameActive = true;
+
+  document.querySelector('#minigame-title').textContent = miniGame.title;
+  document.querySelector('#minigame-description').textContent = miniGame.description;
+  document.querySelector('#minigame-result').textContent = '';
+  document.querySelector('#minigame-result').className = 'minigame-result';
+
+  const area = document.querySelector('#minigame-area');
+  area.replaceChildren();
+
+  const timerBar = document.createElement('div');
+  timerBar.className = 'minigame-timer-bar';
+  timerBar.style.width = '100%';
+  document.querySelector('#minigame-timer').replaceChildren(timerBar);
+
+  if (miniGame.type === 'word_choice') {
+    renderWordChoice(miniGame, area, timerBar);
+  } else if (miniGame.type === 'quick_tap') {
+    renderQuickTap(miniGame, area, timerBar);
+  } else if (miniGame.type === 'stealth_meter') {
+    renderStealthMeter(miniGame, area, timerBar);
+  }
+
+  openModal('modal-minigame');
+}
+
+function renderWordChoice(miniGame, area, timerBar) {
+  for (const option of miniGame.options) {
+    const btn = document.createElement('button');
+    btn.className = 'minigame-option';
+    btn.textContent = option.label;
+    btn.type = 'button';
+    btn.addEventListener('click', () => {
+      area.querySelectorAll('.minigame-option').forEach((b) => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      endMiniGame(true, `You chose: ${option.label}`);
+    });
+    area.append(btn);
+  }
+  startTimer(timerBar, miniGame.timeLimit, () => endMiniGame(false, 'Time ran out!'));
+}
+
+function renderQuickTap(miniGame, area, timerBar) {
+  const sequence = miniGame.sequence;
+  let currentIndex = 0;
+
+  const seqDisplay = document.createElement('div');
+  seqDisplay.className = 'tap-sequence';
+  for (let i = 0; i < sequence.length; i++) {
+    const icon = document.createElement('div');
+    icon.className = `tap-icon${i === 0 ? ' active' : ''}`;
+    icon.textContent = sequence[i];
+    icon.dataset.index = i;
+    seqDisplay.append(icon);
+  }
+  area.append(seqDisplay);
+
+  const buttons = document.createElement('div');
+  buttons.className = 'tap-buttons';
+  const uniqueIcons = [...new Set(sequence)];
+  for (const icon of uniqueIcons) {
+    const btn = document.createElement('button');
+    btn.className = 'tap-btn';
+    btn.textContent = icon;
+    btn.type = 'button';
+    btn.addEventListener('click', () => {
+      if (currentIndex >= sequence.length) return;
+      const expected = sequence[currentIndex];
+      const iconEl = seqDisplay.querySelector(`[data-index="${currentIndex}"]`);
+      if (icon === expected) {
+        iconEl.classList.remove('active');
+        iconEl.classList.add('done');
+        currentIndex++;
+        if (currentIndex < sequence.length) {
+          seqDisplay.querySelector(`[data-index="${currentIndex}"]`).classList.add('active');
+        } else {
+          endMiniGame(true, 'Perfect sequence! 🎯');
+        }
+      } else {
+        iconEl.classList.add('missed');
+        endMiniGame(false, 'Wrong button! ❌');
+      }
+    });
+    buttons.append(btn);
+  }
+  area.append(buttons);
+  startTimer(timerBar, miniGame.timeLimit, () => endMiniGame(false, 'Too slow! ⏰'));
+}
+
+function renderStealthMeter(miniGame, area, timerBar) {
+  const meter = document.createElement('div');
+  meter.className = 'stealth-meter';
+
+  const redZone = document.createElement('div');
+  redZone.className = 'stealth-zone-red';
+
+  const yellowZone = document.createElement('div');
+  yellowZone.className = 'stealth-zone-yellow';
+  yellowZone.style.left = `${miniGame.zones.yellow[0]}%`;
+  yellowZone.style.width = `${miniGame.zones.yellow[1] - miniGame.zones.yellow[0]}%`;
+
+  const greenZone = document.createElement('div');
+  greenZone.className = 'stealth-zone-green';
+  greenZone.style.left = `${miniGame.zones.green[0]}%`;
+  greenZone.style.width = `${miniGame.zones.green[1] - miniGame.zones.green[0]}%`;
+
+  const needle = document.createElement('div');
+  needle.className = 'stealth-needle';
+  needle.style.left = '0%';
+
+  meter.append(redZone, yellowZone, greenZone, needle);
+  area.append(meter);
+
+  const stopBtn = document.createElement('button');
+  stopBtn.className = 'menu-btn primary';
+  stopBtn.textContent = '⏹ STOP';
+  stopBtn.type = 'button';
+  stopBtn.style.marginTop = '1rem';
+  area.append(stopBtn);
+
+  let position = 0;
+  let direction = 1;
+  const speed = miniGame.speed || 2;
+  let animFrame;
+  let stopped = false;
+
+  function animate() {
+    if (stopped) return;
+    position += direction * speed;
+    if (position >= 100) { position = 100; direction = -1; }
+    if (position <= 0) { position = 0; direction = 1; }
+    needle.style.left = `${position}%`;
+    animFrame = requestAnimationFrame(animate);
+  }
+
+  stopBtn.addEventListener('click', () => {
+    if (stopped) return;
+    stopped = true;
+    cancelAnimationFrame(animFrame);
+    const inGreen = position >= miniGame.zones.green[0] && position <= miniGame.zones.green[1];
+    const inYellow = position >= miniGame.zones.yellow[0] && position <= miniGame.zones.yellow[1];
+    if (inGreen) {
+      endMiniGame(true, 'Perfect stealth! 🟢');
+    } else if (inYellow) {
+      endMiniGame(true, 'Close enough... 🟡');
+    } else {
+      endMiniGame(false, 'Detected! 🔴');
+    }
+  });
+
+  animFrame = requestAnimationFrame(animate);
+  startTimer(timerBar, miniGame.timeLimit, () => {
+    if (!stopped) {
+      stopped = true;
+      cancelAnimationFrame(animFrame);
+      endMiniGame(false, 'Too slow! ⏰');
+    }
+  });
+}
+
+function startTimer(timerBar, seconds, onExpire) {
+  const start = Date.now();
+  const duration = seconds * 1000;
+  function tick() {
+    if (!app.miniGameActive) return;
+    const elapsed = Date.now() - start;
+    const remaining = Math.max(0, 1 - elapsed / duration);
+    timerBar.style.width = `${remaining * 100}%`;
+    if (remaining <= 0) {
+      onExpire();
+    } else {
+      requestAnimationFrame(tick);
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+function endMiniGame(success, message) {
+  app.miniGameActive = false;
+  const result = document.querySelector('#minigame-result');
+  result.textContent = message;
+  result.className = `minigame-result ${success ? 'success' : 'fail'}`;
+  showToast(message, success ? 'success' : 'warning');
+  setTimeout(() => closeModal('modal-minigame'), 1800);
 }
 
 /* ===== GAME LOGIC ===== */
@@ -177,6 +395,11 @@ async function submitAction(payload) {
     app.state = result;
     app.message = result.notice;
     if (result.notice) showToast(result.notice, 'success');
+
+    // Show mini-game if returned
+    if (result.miniGame) {
+      showMiniGame(result.miniGame);
+    }
   } catch (error) {
     app.message = error.message;
     showToast(error.message, 'error');
@@ -307,11 +530,17 @@ function renderNeighborhoodMap() {
   if (!app.state) return;
 
   for (const location of app.state.locations) {
-    const tile = createElement('div', `location-tile${location.id === app.state.player.locationId ? ' current' : ''}`);
+    const isCurrent = location.id === app.state.player.locationId;
+    const tile = createElement('div', `location-tile${isCurrent ? ' current' : ' clickable'}`);
+    tile.dataset.locationId = location.id;
+    tile.dataset.locationName = location.shortName;
     tile.append(
       createElement('strong', '', location.shortName),
       createElement('span', '', `${location.population} ${location.population === 1 ? 'person' : 'people'} nearby`),
     );
+    if (isCurrent) {
+      tile.append(createElement('span', 'map-you-badge', '📍 You are here'));
+    }
     map.append(tile);
   }
 }

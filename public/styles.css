@@ -786,3 +786,217 @@ body {
 
   .social-tabs { flex-wrap: wrap; }
 }
+
+/* ===== PHASE 5: CLICKABLE MAP ===== */
+.location-tile.clickable {
+  cursor: pointer;
+}
+.location-tile.clickable:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(110, 197, 255, 0.2);
+}
+
+.map-hint {
+  color: var(--faint);
+  font-size: 0.75rem;
+  margin-bottom: 0.75rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+/* ===== TRAVEL CONFIRM ===== */
+.travel-confirm-body {
+  text-align: center;
+}
+.travel-confirm-body p {
+  margin-bottom: 1.25rem;
+  font-size: 1rem;
+  color: var(--text);
+}
+.travel-confirm-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+/* ===== MINI-GAME ===== */
+.minigame-desc {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.minigame-timer {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+
+.minigame-timer-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.1s linear;
+  border-radius: 2px;
+}
+
+.minigame-area {
+  min-height: 120px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.minigame-option {
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.minigame-option:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  transform: scale(1.05);
+}
+.minigame-option.selected {
+  border-color: var(--success);
+  background: rgba(107, 255, 176, 0.12);
+  color: var(--success);
+}
+.minigame-option.wrong {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* Stealth meter */
+.stealth-meter {
+  width: 100%;
+  height: 40px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+}
+.stealth-zone-red {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 107, 107, 0.15);
+}
+.stealth-zone-yellow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(240, 160, 64, 0.2);
+}
+.stealth-zone-green {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(107, 255, 176, 0.2);
+  border-left: 2px solid var(--success);
+  border-right: 2px solid var(--success);
+}
+.stealth-needle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: left 0.05s linear;
+}
+
+/* Quick tap sequence */
+.tap-sequence {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+.tap-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  background: var(--bg);
+}
+.tap-icon.active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  animation: tapPulse 0.5s ease infinite;
+}
+.tap-icon.done {
+  border-color: var(--success);
+  background: rgba(107, 255, 176, 0.1);
+  color: var(--success);
+}
+.tap-icon.missed {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.tap-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.tap-btn {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.tap-btn:hover {
+  border-color: var(--primary);
+  transform: scale(1.1);
+}
+
+.minigame-result {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  min-height: 1.5rem;
+}
+.minigame-result.success { color: var(--success); }
+.minigame-result.fail { color: var(--danger); }
+
+@keyframes tapPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(110, 197, 255, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(110, 197, 255, 0); }
+}
+
+.map-you-badge {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--accent);
+  font-weight: 600;
+}

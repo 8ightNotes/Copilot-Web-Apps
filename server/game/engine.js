@@ -40,7 +40,7 @@ class GameEngine {
     }
 
     this.time = new SimulationTime(DEFAULT_START_DAY, DEFAULT_START_MINUTE);
-    this.world = new World(DEFAULT_START_MINUTE);
+    this.world = new World(DEFAULT_START_MINUTE, { seed: this.seed || Date.now(), npcCount: 4 });
     this.social = new SocialState(this.world);
     this.roles = new RoleState(this.world, {
       seed: this.seed,
@@ -109,7 +109,7 @@ class GameEngine {
 
     return {
       title: 'A Text Impostor',
-      phase: 3,
+      phase: 5,
       turn: this.turn,
       time: this.time.toJSON(),
       player: {

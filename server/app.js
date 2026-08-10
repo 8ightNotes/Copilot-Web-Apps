@@ -13,7 +13,7 @@ app.use(express.json({ limit: '20kb' }));
 app.use(express.static(publicDirectory));
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'a-text-impostor', phase: 4 });
+  res.json({ status: 'ok', service: 'a-text-impostor', phase: 5 });
 });
 
 app.use('/api/game', createGameRouter(gameEngine));

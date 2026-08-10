@@ -12,7 +12,7 @@
     <div id="menu-screen" class="screen menu-screen active">
       <div class="menu-container">
         <div class="menu-glow"></div>
-        <div class="menu-badge">PHASE 04</div>
+        <div class="menu-badge">PHASE 05</div>
         <h1 class="menu-title">A Text Impostor</h1>
         <p class="menu-tagline">Infiltrate. Deceive. Survive.</p>
         <div class="menu-buttons">
@@ -26,7 +26,7 @@
             <span class="btn-icon">?</span> How to Play
           </button>
         </div>
-        <p class="menu-footer">A hidden-role text simulation · Phase 4</p>
+        <p class="menu-footer">A hidden-role text simulation · Phase 5</p>
       </div>
     </div>
 
@@ -131,6 +131,7 @@
           <button class="modal-close" data-close-modal="modal-map" type="button">✕</button>
         </div>
         <div class="modal-body">
+          <p class="map-hint">Click a location to travel there</p>
           <div id="neighborhood-map" class="location-grid"></div>
         </div>
       </div>
@@ -212,6 +213,39 @@
             <button id="pause-how" class="menu-btn" type="button">How to Play</button>
             <button id="pause-quit" class="menu-btn danger" type="button">Quit to Menu</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Travel Confirmation -->
+    <div id="modal-travel" class="modal-overlay" aria-hidden="true">
+      <div class="modal modal-compact">
+        <div class="modal-header">
+          <h2>🚶 Travel</h2>
+          <button class="modal-close" data-close-modal="modal-travel" type="button">✕</button>
+        </div>
+        <div class="modal-body travel-confirm-body">
+          <p id="travel-confirm-text">Go to this location?</p>
+          <div class="travel-confirm-buttons">
+            <button id="travel-confirm-yes" class="menu-btn primary" type="button">Yes, go there</button>
+            <button id="travel-confirm-no" class="menu-btn" type="button">Stay here</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Mini-Game -->
+    <div id="modal-minigame" class="modal-overlay" aria-hidden="true">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="minigame-title">🎮 Mini-Game</h2>
+          <button class="modal-close" data-close-modal="modal-minigame" type="button">✕</button>
+        </div>
+        <div class="modal-body">
+          <p id="minigame-description" class="minigame-desc"></p>
+          <div id="minigame-timer" class="minigame-timer"></div>
+          <div id="minigame-area" class="minigame-area"></div>
+          <div id="minigame-result" class="minigame-result"></div>
         </div>
       </div>
     </div>
