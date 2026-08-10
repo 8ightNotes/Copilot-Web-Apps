@@ -104,8 +104,13 @@ function pick(rng, array) {
 }
 
 function pickN(rng, array, n) {
-  const shuffled = [...array].sort(() => rng() - 0.5);
-  return shuffled.slice(0, n);
+  const copy = [...array];
+  // Fisher-Yates shuffle
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, n);
 }
 
 function randomIntRange(rng, min, max) {

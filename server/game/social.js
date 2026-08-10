@@ -439,30 +439,30 @@ class SocialState {
 
   seedRumors() {
     const timestamp = { day: 1, minuteOfDay: 8 * 60 };
-    this.addRumor({
-      subjectId: 'sarah',
-      text: 'Sarah has been staying late to revise a proposal no one else has seen.',
-      sourceId: 'mike',
-      credibility: 72,
-      knownBy: ['player', 'james'],
-      now: timestamp,
-    });
-    this.addRumor({
-      subjectId: 'mike',
-      text: 'Mike has been taking the long route through Town Square after work.',
-      sourceId: 'sarah',
-      credibility: 61,
-      knownBy: ['player'],
-      now: timestamp,
-    });
-    this.addRumor({
-      subjectId: 'james',
-      text: 'James keeps a second version of the project plan in his desk.',
-      sourceId: 'tom',
-      credibility: 46,
-      knownBy: ['tom'],
-      now: timestamp,
-    });
+    const npcs = this.world.getNpcs();
+    if (npcs.length < 2) return;
+
+    // Generate dynamic rumors from the actual NPCs
+    const rumorTemplates = [
+      (subj) => `${subj.name} has been staying late to work on something no one else has seen.`,
+      (subj) => `${subj.name} keeps taking the long route through town after work.`,
+      (subj) => `${subj.name} was seen talking quietly with someone unusual yesterday.`,
+    ];
+
+    const count = Math.min(rumorTemplates.length, npcs.length);
+    for (let i = 0; i < count; i++) {
+      const subject = npcs[i];
+      const source = npcs[(i + 1) % npcs.length];
+      const credibility = 50 + Math.floor(Math.random() * 30);
+      this.addRumor({
+        subjectId: subject.id,
+        text: rumorTemplates[i](subject),
+        sourceId: source.id,
+        credibility,
+        knownBy: ['player'],
+        now: timestamp,
+      });
+    }
   }
 
   getRumorsKnownBy(characterId) {
