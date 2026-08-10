@@ -459,9 +459,6 @@ class GameEngine {
     const target = ability.requiresTarget
       ? this.requireNpcAtCurrentLocation(targetId)
       : null;
-    if (ability.requiresTarget && !target) {
-      throw new GameValidationError('This role ability needs someone nearby.', 'TARGET_REQUIRED');
-    }
     let text;
 
     switch (roleId) {

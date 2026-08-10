@@ -546,12 +546,12 @@ class RoleState {
   }
 
   toAbsoluteMinute(timestamp) {
-    return timestamp.day * MINUTES_PER_DAY + timestamp.minuteOfDay;
+    return (timestamp.day - 1) * MINUTES_PER_DAY + timestamp.minuteOfDay;
   }
 
   getTimestampAt(absoluteMinute) {
     return makeTimestamp({
-      day: Math.floor(absoluteMinute / MINUTES_PER_DAY),
+      day: Math.floor(absoluteMinute / MINUTES_PER_DAY) + 1,
       minuteOfDay: absoluteMinute % MINUTES_PER_DAY,
     });
   }
