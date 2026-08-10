@@ -669,17 +669,18 @@ class SocialState {
     const companions = entry.companions
       .map((id) => this.world.getNpc(id))
       .filter((companion) => companion && companion.locationId === npc.locationId);
-    const companion = companions.find((candidate) => candidate.id > npc.id);
+    const companion = companions
+      .sort((left, right) => left.id.localeCompare(right.id))[0];
     if (!companion) {
       return null;
     }
 
     const timestamp = makeTimestamp(now);
+    const pair = [npc.id, companion.id].sort();
     const encounterKey = [
       timestamp.day,
       timestamp.minuteOfDay,
-      npc.id,
-      companion.id,
+      ...pair,
       entry.start,
     ].join(':');
     if (this.socialEncounterKeys.has(encounterKey)) {
