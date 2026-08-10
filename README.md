@@ -1,6 +1,6 @@
 # A Text Impostor
 
-Phase 3 is a small, server-side hidden-role social simulation built with Node.js and Express.
+Phase 4 is a small, server-side hidden-role social simulation built with Node.js and Express.
 
 ## Run locally
 

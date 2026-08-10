@@ -121,7 +121,7 @@ async function startNewGame() {
   try {
     const response = await fetch('/api/game/reset', { method: 'POST' });
     app.state = await parseResponse(response);
-    app.message = 'A new day begins. Good luck, impostor.';
+    app.message = 'A new day begins. Check your role to discover your assignment.';
     showScreen('game-screen');
     render();
     showToast('New game started!', 'success');
