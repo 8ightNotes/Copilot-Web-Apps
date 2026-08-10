@@ -3,6 +3,7 @@ const {
   MAX_RELATIONSHIP_HISTORY,
   MAX_REPUTATION_HISTORY,
   MAX_RUMOR_COUNT,
+  MAX_RUMOR_HISTORY,
   SOCIAL_VALUE_MAX,
   SOCIAL_VALUE_MIN,
 } = require('./constants');
@@ -483,7 +484,7 @@ class SocialState {
         day: timestamp.day,
         clock: timestamp.clock,
       });
-      rumor.history = rumor.history.slice(-MAX_RELATIONSHIP_HISTORY);
+      rumor.history = rumor.history.slice(-MAX_RUMOR_HISTORY);
     }
     return rumor;
   }
