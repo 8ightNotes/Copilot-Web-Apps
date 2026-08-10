@@ -111,6 +111,16 @@ function opinionSummary(relationship) {
   return 'They are still deciding what to make of you.';
 }
 
+function conversationTone(relationship) {
+  if (relationship.suspicion >= 70) {
+    return 'guarded';
+  }
+  if (relationship.trust >= 72) {
+    return 'open';
+  }
+  return 'measured';
+}
+
 function relationshipFrom(input = {}) {
   const relationship = {
     affinity: clamp(numberOr(input.affinity, 40)),
@@ -631,7 +641,7 @@ class SocialState {
       context: `${npc.name} is ${npc.activity}. They respond to ${approachLabel}.`,
       period,
       topic: goal && goal.status === 'active' ? goal.label : 'the neighborhood',
-      tone: relationship.suspicion >= 70 ? 'guarded' : relationship.trust >= 72 ? 'open' : 'measured',
+      tone: conversationTone(relationship),
     };
   }
 
