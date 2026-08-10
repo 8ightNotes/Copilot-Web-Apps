@@ -56,7 +56,7 @@ class GameEngine {
     const social = this.social.getPublicState(this.player.id);
     const publicNpcs = this.world.getPublicNpcs().map((npc) => ({
       ...npc,
-      relationship: this.social.getPublicRelationship(npc.id, this.player.id),
+      relationship: this.social.getPublicRelationship(this.player.id, npc.id),
       opinion: social.relationships.find((entry) => entry.npcId === npc.id)?.opinion || null,
     }));
     const publicNearbyNpcs = nearbyNpcs.map((npc) => {

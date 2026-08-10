@@ -438,7 +438,7 @@ class SocialState {
       text: 'Mike has been taking the long route through Town Square after work.',
       sourceId: 'sarah',
       credibility: 61,
-      knownBy: ['player', 'sarah'],
+      knownBy: ['player'],
       now: timestamp,
     });
     this.addRumor({
@@ -579,7 +579,6 @@ class SocialState {
     const currentEntry = this.world.getCurrentScheduleEntry(
       npcId,
       now && now.minuteOfDay,
-      now && now.day,
     );
     const goal = npc.goal;
     const lines = [];
